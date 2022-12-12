@@ -47,7 +47,7 @@ async def main():
         await load_extensions(bot)
 
 #        https: // stackoverflow.com / questions / 71625788 / accesing - loop - attribute - in -non -async-contexts
-        await bot.create_db_pool(database, db_user, db_password, local_flag)
+        await bot.create_db_pool(database, db_user, db_password)
 
         await bot.start(discord_token)
 

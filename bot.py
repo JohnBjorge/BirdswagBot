@@ -19,8 +19,5 @@ class BirdswagBot(commands.Bot):
             **options
         )
 
-    async def create_db_pool(self, database, user, password, local_flag):
-        if local_flag:
-            self.db = await asyncpg.create_pool(database=database, user=user, password=password, host="127.0.0.1")
-        else:
-            self.db = await asyncpg.create_pool(database=database, user=user, password=password)
+    async def create_db_pool(self, database, user, password):
+        self.db = await asyncpg.create_pool(database=database, user=user, password=password, host="127.0.0.1")
