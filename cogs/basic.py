@@ -7,7 +7,7 @@ class Basic(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("I'm ready")
+        print("I'm ready, test workflow")
 
     @commands.command(aliases=["r"])
     async def read(self, ctx):
