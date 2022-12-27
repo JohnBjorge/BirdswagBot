@@ -4,67 +4,70 @@ from helpers import db_manager
 async def create_core_tables(self):
     sql_create_table_workout = \
         ("""
-                    create table if not exists workout (
-                        workout_id serial not null primary key,
-                        user_discord_id int not null,
-                        date date not null,
-                        type_of_workout text not null,
-                        difficulty int not null,
-                        note text not null,
-                        constraint valid_type_of_workout check (type_of_workout in ('cardio', 'strength', 'balance', 'flexibility')),
-                        constraint valid_difficulty check (difficulty in (1, 2, 3, 4))
-                    );
-                """)
+            create table if not exists workout (
+                workout_id serial not null,
+                user_id bigint not null,
+                date date not null,
+                type_of_workout text not null,
+                difficulty int not null,
+                note text not null,
+                constraint valid_type_of_workout check (type_of_workout in ('cardio', 'strength', 'balance', 'flexibility')),
+                constraint valid_difficulty check (difficulty in (1, 2, 3, 4)),
+                constraint pkey_workout_id primary key (workout_id)
+            );
+        """)
 
-    sql_create_table_user_discord = \
+    sql_create_table_fitness_goal = \
         ("""
-                    create table if not exists user_discord (
-                        user_discord_id int not null,
-                        start_date date not null,
-                        end_date date not null,
-                        goal text not null
-                    );
-                """)
+            create table if not exists fitness_goal (
+                    fitness_goal_id serial not null,
+                    user_id bigint not null,
+                    start_date date not null,
+                    end_date date not null,
+                    note text not null,
+                    constraint pkey_fitness_goal_id primary key (fitness_goal_id)
+            );
+        """)
 
     sql_create_table_date_dimension = \
         ("""
-                    create table if not exists date_dimension (
-                        date_dimension_id int not null,
-                        date_actual date not null,
-                        epoch bigint not null,
-                        day_suffix varchar(4) not null,
-                        day_name varchar(9) not null,
-                        day_of_week int not null,
-                        day_of_month int not null,
-                        day_of_quarter int not null,
-                        day_of_year int not null,
-                        week_of_month int not null,
-                        week_of_year int not null,
-                        week_of_year_iso varchar(10) not null,
-                        month_actual int not null,
-                        month_name varchar(9) not null,
-                        month_name_abbreviated varchar(3) not null,
-                        quarter_actual int not null,
-                        quarter_name varchar(9) not null,
-                        year_actual int not null,
-                        first_day_of_week date not null,
-                        last_day_of_week date not null,
-                        first_day_of_month date not null,
-                        last_day_of_month date not null,
-                        first_day_of_quarter date not null,
-                        last_day_of_quarter date not null,
-                        first_day_of_year date not null,
-                        last_day_of_year date not null,
-                        mmyyyy varchar(6) not null,
-                        mmddyyyy varchar(10) not null,
-                        weekend varchar(7) not null,
-                        holiday_usa varchar(10) not null,
-                        constraint pkey_date_dimension primary key (date_dimension_id)
-                    );
-                """)
+            create table if not exists date_dimension (
+                date_dimension_id int not null,
+                date_actual date not null,
+                epoch bigint not null,
+                day_suffix varchar(4) not null,
+                day_name varchar(9) not null,
+                day_of_week int not null,
+                day_of_month int not null,
+                day_of_quarter int not null,
+                day_of_year int not null,
+                week_of_month int not null,
+                week_of_year int not null,
+                week_of_year_iso varchar(10) not null,
+                month_actual int not null,
+                month_name varchar(9) not null,
+                month_name_abbreviated varchar(3) not null,
+                quarter_actual int not null,
+                quarter_name varchar(9) not null,
+                year_actual int not null,
+                first_day_of_week date not null,
+                last_day_of_week date not null,
+                first_day_of_month date not null,
+                last_day_of_month date not null,
+                first_day_of_quarter date not null,
+                last_day_of_quarter date not null,
+                first_day_of_year date not null,
+                last_day_of_year date not null,
+                mmyyyy varchar(6) not null,
+                mmddyyyy varchar(10) not null,
+                weekend varchar(7) not null,
+                holiday_usa varchar(10) not null,
+                constraint pkey_date_dimension primary key (date_dimension_id)
+            );
+        """)
 
     await self.bot.db.execute(sql_create_table_workout)
-    await self.bot.db.execute(sql_create_table_user_discord)
+    await self.bot.db.execute(sql_create_table_fitness_goal)
     await self.bot.db.execute(sql_create_table_date_dimension)
 
 

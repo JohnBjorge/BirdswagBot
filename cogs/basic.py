@@ -1,6 +1,7 @@
 from discord.ext import commands
 from helpers import core_tables
 from helpers import db_manager
+from datetime import date
 
 
 class Basic(commands.Cog):
@@ -21,27 +22,80 @@ class Basic(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        member_id = member.id
-        print("hello please")
-        print(member_id)
+        pass
 
-    @commands.command(aliases=["r"])
-    async def read(self, ctx):
-        sql = ("SELECT id, name, dob "
-               "FROM users "
-               "WHERE name='Bob';")
+    @commands.command()
+    async def join(self, ctx):
+        # check if user already exists, if not proceed, otherwise exit out
 
-        row = await self.bot.db.fetchrow(sql)
+        user_id = ctx.author.id
+        start_date = str(date.today())
+        end_date = "2999-12-31"
+        note = "No goals"
+
+        sql_insert_fitness_goal = \
+            (f"""
+                insert into fitness_goal (user_id, start_date, end_date, note)
+                values ({user_id}, '{start_date}', '{end_date}', '{note}');
+            """)
+
+        await self.bot.db.execute(sql_insert_fitness_goal)
+
+    @commands.command()
+    async def goal(self, ctx, fitness_goal_id=None):
+        user_id = ctx.author.id
+        sql_fetch_goal = None
+
+        if fitness_goal_id is None:
+            sql_fetch_goal = \
+                (f"""
+                    select fitness_goal_id,
+                        start_date,
+                        end_date,
+                        note
+                    from fitness_goal
+                    where user_id = {user_id}
+                    order by end_date desc
+                    limit 1
+                """)
+        else:
+            sql_fetch_goal = \
+                (f"""
+                    select
+                        fitness_goal_id,
+                        start_date,
+                        end_date,
+                        note
+                    from fitness_goal
+                    where fitness_goal_id = {fitness_goal_id}
+                """)
+
+        row = await self.bot.db.fetchrow(sql_fetch_goal)
         await ctx.send(row)
 
-#   https://stackoverflow.com/questions/5243596/python-sql-query-string-formatting
-    @commands.command(aliases=["w"])
-    async def write(self, ctx):
-        sql = ("INSERT INTO users (id, name, dob) "
-               "VALUES (2, 'John', '1993-08-27');")
+    @commands.command()
+    async def goal_history(self, ctx):
+        # show all goals
+        pass
 
-        await self.bot.db.execute(sql)
-        await ctx.send("I added row to db")
+    @commands.command()
+    async def goal_update(self, ctx):
+        # first arg is goal id, start_date, note
+        pass
+
+    @commands.command()
+    async def goal_delete(self, ctx, fitness_goal_id):
+        # first arg is goal id, delete goal, update inferred end dates
+
+        fitness_goal_id = fitness_goal_id
+
+        sql_delete_fitness_goal = \
+            (f"""
+                delete from fitness_goal
+                where fitness_goal_id = {fitness_goal_id};
+            """)
+
+        await self.bot.db.execute(sql_delete_fitness_goal)
 
 
 async def setup(bot):
