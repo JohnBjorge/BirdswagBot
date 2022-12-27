@@ -2,6 +2,8 @@ from discord.ext import commands
 
 
 class Basic(commands.Cog):
+    db_tables = None
+
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -125,9 +127,19 @@ class Basic(commands.Cog):
         await self.bot.db.execute(sql_create_table_workout)
         await self.bot.db.execute(sql_create_table_user_discord)
         await self.bot.db.execute(sql_create_table_date_dimension)
+        db_tables = await show_tables(self)
         print("done creating tables")
-        await self.bot.db.execute(sql_populate_date_dimension)
-        print("done populating date dimension table")
+
+        if "date_dimension" not in db_tables:
+            await self.bot.db.execute(sql_populate_date_dimension)
+            print("done populating date dimension table")
+
+        print("date dimension table already populated")
+
+    # @bot.event
+    # async def on_member_join(member):
+    #     member_id = member.id
+    #     print(member_id)
 
     @commands.command(aliases=["r"])
     async def read(self, ctx):
@@ -147,6 +159,19 @@ class Basic(commands.Cog):
         await self.bot.db.execute(sql)
         await ctx.send("I added row to db")
 
+
+async def show_tables(self):
+    sql_show_tables = \
+        ("""
+            select table_name 
+            from information_schema.tables
+            where table_schema = 'public';
+        """)
+
+    result = await self.bot.db.fetch(sql_show_tables)
+    list_tables = [item[0] for item in result]
+
+    return list_tables
 
 async def setup(bot):
     await bot.add_cog(Basic(bot))
