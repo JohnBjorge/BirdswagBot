@@ -17,11 +17,11 @@ class Basic(commands.Cog):
 
         print("I'm ready")
 
-
-    # @bot.event
-    # async def on_member_join(member):
-    #     member_id = member.id
-    #     print(member_id)
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        member_id = member.id
+        print("hello please")
+        print(member_id)
 
     @commands.command(aliases=["r"])
     async def read(self, ctx):
