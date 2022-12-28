@@ -43,7 +43,7 @@ class Basic(commands.Cog):
         await self.bot.db.execute(sql_insert_fitness_goal)
 
     @commands.command()
-    async def goal(self, ctx, fitness_goal_id: typing.Optional[int] = None):
+    async def goal(self, ctx, fitness_goal_id = None):
         user_id = ctx.author.id
         sql_fetch_goal = None
 
@@ -68,7 +68,7 @@ class Basic(commands.Cog):
                         end_date,
                         note
                     from fitness_goal
-                    where fitness_goal_id = {fitness_goal_id}
+                    where fitness_goal_id = {fitness_goal_id};
                 """)
 
         row = await self.bot.db.fetchrow(sql_fetch_goal)
@@ -76,8 +76,19 @@ class Basic(commands.Cog):
 
     @commands.command()
     async def goal_history(self, ctx):
-        # show all goals
-        pass
+        user_id = ctx.author.id
+
+        sql_goal_history = \
+            (f"""
+                select * 
+                from fitness_goal
+                where user_id = {user_id}
+                order by end_date desc;
+            """)
+
+        result = await self.bot.db.fetch(sql_goal_history)
+
+        await ctx.send(result)
 
     @commands.command()
     async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
