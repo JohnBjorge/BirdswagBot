@@ -43,6 +43,20 @@ class Basic(commands.Cog):
         await self.bot.db.execute(sql_insert_fitness_goal)
 
     @commands.command()
+    async def goal_new(self, ctx, start_date, *, note):
+        # add infer end date functionality
+        user_id = ctx.author.id
+        end_date = "2999-12-31"
+
+        sql_fitness_goal_new = \
+            (f"""
+                        insert into fitness_goal (user_id, start_date, end_date, note)
+                        values ({user_id}, '{start_date}', '{end_date}', '{note}');
+                    """)
+
+        await self.bot.db.execute(sql_fitness_goal_new)
+
+    @commands.command()
     async def goal(self, ctx, fitness_goal_id = None):
         user_id = ctx.author.id
         sql_fetch_goal = None
