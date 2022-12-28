@@ -1,7 +1,7 @@
 from discord.ext import commands
 from helpers import core_tables
 from helpers import db_manager
-from datetime import date
+import datetime
 import typing
 
 
@@ -34,27 +34,39 @@ class Basic(commands.Cog):
         end_date = "2999-12-31"
         note = "No goals"
 
+        sql_input = dict({"user_id": user_id, "start_date": start_date, "end_date": end_date, "note": note})
+
         sql_insert_fitness_goal = \
-            (f"""
+            ("""
                 insert into fitness_goal (user_id, start_date, end_date, note)
-                values ({user_id}, '{start_date}', '{end_date}', '{note}');
+                values (:user_id, :start_date, :end_date, :note);
             """)
 
-        await self.bot.db.execute(sql_insert_fitness_goal)
+        await self.bot.db.execute(sql_insert_fitness_goal, sql_input)
 
     @commands.command()
     async def goal_new(self, ctx, start_date, *, note):
         # add infer end date functionality
-        user_id = ctx.author.id
-        end_date = "2999-12-31"
+        user_id = int(ctx.author.id)
+        end_date = datetime.date(2999, 12, 31)
+        start_date = datetime.date(1800, 1, 1)
+
+        sql_input = {'user_id': user_id, 'start_date': start_date, 'end_date': end_date, 'note': note}
+
+        print(sql_input)
 
         sql_fitness_goal_new = \
-            (f"""
-                        insert into fitness_goal (user_id, start_date, end_date, note)
-                        values ({user_id}, '{start_date}', '{end_date}', '{note}');
-                    """)
+            ("""
+                insert into fitness_goal (user_id, start_date, end_date, note)
+                values (%(user_id)s, %(start_date)s, %(end_date)s, %(note)s);
+            """)
 
-        await self.bot.db.execute(sql_fitness_goal_new)
+        print(sql_fitness_goal_new)
+
+        new_query, positional_args = db_manager.pyformat2psql(sql_fitness_goal_new, sql_input)
+
+        # await self.bot.db.execute(sql_fitness_goal_new, user_id, start_date, end_date, note)
+        await self.bot.db.execute(new_query, *positional_args)
 
     @commands.command()
     async def goal(self, ctx, fitness_goal_id = None):
