@@ -2,6 +2,7 @@ from discord.ext import commands
 from helpers import core_tables
 from helpers import db_manager
 from datetime import date
+import typing
 
 
 class Basic(commands.Cog):
@@ -42,7 +43,7 @@ class Basic(commands.Cog):
         await self.bot.db.execute(sql_insert_fitness_goal)
 
     @commands.command()
-    async def goal(self, ctx, fitness_goal_id=None):
+    async def goal(self, ctx, fitness_goal_id: typing.Optional[int] = None):
         user_id = ctx.author.id
         sql_fetch_goal = None
 
@@ -79,9 +80,20 @@ class Basic(commands.Cog):
         pass
 
     @commands.command()
-    async def goal_update(self, ctx):
-        # first arg is goal id, start_date, note
-        pass
+    async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
+        # don't let users update records that aren't theirs
+        # maybe break this out into goal_update_start_date, goal_update_note, etc
+        # add helper function to handle updating end_dates for inferring
+        sql_update_fitness_goal = \
+            (f"""
+                update fitness_goal
+                set start_date = '{start_date}',
+                    note = '{note}'
+                where fitness_goal_id = {fitness_goal_id}
+            """)
+
+        await self.bot.db.execute(sql_update_fitness_goal)
+        await ctx.send("I updated the record")
 
     @commands.command()
     async def goal_delete(self, ctx, fitness_goal_id):
