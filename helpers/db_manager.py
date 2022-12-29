@@ -15,6 +15,7 @@ def pyformat_to_psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[
     positional_args = [named_args[named_arg] for named_arg, _ in positional_items]
     return formatted_query, positional_args
 
+
 async def workout_id_matches_user_id(self, workout_id, user_id):
     sql_input = {"workout_id": workout_id, "user_id": user_id}
 
@@ -109,8 +110,8 @@ async def show_tables(self):
     return list_tables
 
 
+# todo: not sure if I need to change to prepared statement, also not able to with table name
 async def table_is_empty(self, table_name):
-    # not sure if I need to change to prepared statement, also not able to with table name
     sql_table_is_empty = \
         (f"""
             select *
