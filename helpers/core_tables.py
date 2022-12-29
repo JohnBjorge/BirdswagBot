@@ -17,6 +17,8 @@ async def create_core_tables(self):
             );
         """)
 
+    # add constraint so that you can't have multiple same start_dates for a given user
+    # essentially a composite primary key of user, start_date
     sql_create_table_fitness_goal = \
         ("""
             create table if not exists fitness_goal (

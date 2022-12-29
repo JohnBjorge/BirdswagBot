@@ -3,7 +3,8 @@ import itertools
 from typing import Any, Dict, Tuple, List
 
 
-def pyformat2psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[Any]]:
+# https://github.com/MagicStack/asyncpg/issues/9#issuecomment-600659015
+def pyformat_to_psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[Any]]:
     positional_generator = itertools.count(1)
     positional_map = collections.defaultdict(lambda: '${}'.format(next(positional_generator)))
     formatted_query = query % positional_map
@@ -13,6 +14,44 @@ def pyformat2psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[Any
     )
     positional_args = [named_args[named_arg] for named_arg, _ in positional_items]
     return formatted_query, positional_args
+
+
+async def fitness_goal_exist_user_id(self, user_id):
+    sql_input = {'user_id': user_id}
+
+    sql_fitness_goal_exist_user_id = \
+        ("""select 1
+            from fitness_goal
+            where user_id = %(user_id)s
+            limit 1
+        """)
+
+    query, positional_args = pyformat_to_psql(sql_fitness_goal_exist_user_id, sql_input)
+
+    result = await self.bot.db.fetchrow(query, *positional_args)
+
+    if result is None:
+        return False
+    else:
+        return True
+
+
+async def fitness_goal_update_end_dates(self):
+    sql_fitness_goal_update_end_dates = \
+        ("""
+            with inferred_end_date as
+            (
+                select fitness_goal_id,
+                lead(start_date, -1, '2999-12-31') over(partition by user_id order by start_date desc) - 1 as end_date
+                from fitness_goal
+            )
+            update fitness_goal
+            set end_date = inferred_end_date.end_date
+            from inferred_end_date
+            where inferred_end_date.fitness_goal_id = fitness_goal.fitness_goal_id;
+        """)
+
+    await self.bot.db.execute(sql_fitness_goal_update_end_dates)
 
 
 async def show_tables(self):

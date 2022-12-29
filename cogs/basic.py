@@ -1,7 +1,8 @@
 from discord.ext import commands
 from helpers import core_tables
 from helpers import db_manager
-import datetime
+from helpers import clean_data
+from datetime import datetime, date, timedelta
 import typing
 
 
@@ -28,32 +29,36 @@ class Basic(commands.Cog):
     @commands.command()
     async def join(self, ctx):
         # check if user already exists, if not proceed, otherwise exit out
-
         user_id = ctx.author.id
-        start_date = str(date.today())
-        end_date = "2999-12-31"
-        note = "No goals"
+        user_exist = await db_manager.fitness_goal_exist_user_id(self, user_id)
 
-        sql_input = dict({"user_id": user_id, "start_date": start_date, "end_date": end_date, "note": note})
+        if not user_exist:
+            start_date = date.today()
+            end_date = date(2999, 12, 31)
+            note = "No goals yet"
 
-        sql_insert_fitness_goal = \
-            ("""
-                insert into fitness_goal (user_id, start_date, end_date, note)
-                values (:user_id, :start_date, :end_date, :note);
-            """)
+            sql_input = dict({"user_id": user_id, "start_date": start_date, "end_date": end_date, "note": note})
 
-        await self.bot.db.execute(sql_insert_fitness_goal, sql_input)
+            sql_insert_fitness_goal = \
+                ("""
+                    insert into fitness_goal (user_id, start_date, end_date, note)
+                    values (%(user_id)s, %(start_date)s, %(end_date)s, %(note)s);
+                """)
+            query, positional_args = db_manager.pyformat_to_psql(sql_insert_fitness_goal, sql_input)
+
+            await self.bot.db.execute(query, *positional_args)
+            print("I created a new fitness_goal entry for you")
+        else:
+            print("User already exists, sorry!")
 
     @commands.command()
     async def goal_new(self, ctx, start_date, *, note):
-        # add infer end date functionality
-        user_id = int(ctx.author.id)
-        end_date = datetime.date(2999, 12, 31)
-        start_date = datetime.date(1800, 1, 1)
+        user_id = ctx.author.id
+        end_date = date(2999, 12, 31)
+
+        start_date = clean_data.clean_date(start_date)
 
         sql_input = {'user_id': user_id, 'start_date': start_date, 'end_date': end_date, 'note': note}
-
-        print(sql_input)
 
         sql_fitness_goal_new = \
             ("""
@@ -61,15 +66,16 @@ class Basic(commands.Cog):
                 values (%(user_id)s, %(start_date)s, %(end_date)s, %(note)s);
             """)
 
-        print(sql_fitness_goal_new)
+        query, positional_args = db_manager.pyformat_to_psql(sql_fitness_goal_new, sql_input)
 
-        new_query, positional_args = db_manager.pyformat2psql(sql_fitness_goal_new, sql_input)
+        await self.bot.db.execute(query, *positional_args)
 
-        # await self.bot.db.execute(sql_fitness_goal_new, user_id, start_date, end_date, note)
-        await self.bot.db.execute(new_query, *positional_args)
+        await db_manager.fitness_goal_update_end_dates(self)
+
+        print("I created a new goal for you")
 
     @commands.command()
-    async def goal(self, ctx, fitness_goal_id = None):
+    async def goal(self, ctx, fitness_goal_id=None):
         user_id = ctx.author.id
         sql_fetch_goal = None
 
@@ -130,7 +136,8 @@ class Basic(commands.Cog):
             """)
 
         await self.bot.db.execute(sql_update_fitness_goal)
-        await ctx.send("I updated the record")
+        await db_manager.fitness_goal_update_end_dates(self)
+        print("I updated a fitness_goal record")
 
     @commands.command()
     async def goal_delete(self, ctx, fitness_goal_id):
@@ -145,6 +152,9 @@ class Basic(commands.Cog):
             """)
 
         await self.bot.db.execute(sql_delete_fitness_goal)
+
+        await db_manager.fitness_goal_update_end_dates(self)
+        print("I deleted a fitness goal")
 
 
 async def setup(bot):
