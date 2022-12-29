@@ -15,6 +15,26 @@ def pyformat_to_psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[
     positional_args = [named_args[named_arg] for named_arg, _ in positional_items]
     return formatted_query, positional_args
 
+async def workout_id_matches_user_id(self, workout_id, user_id):
+    sql_input = {"workout_id": workout_id, "user_id": user_id}
+
+    sql_workout_id_matches_user_id = \
+        ("""select 1
+            from workout
+            where user_id = %(user_id)s
+            and workout_id = %(workout_id)s
+            limit 1
+        """)
+
+    query, positional_args = pyformat_to_psql(sql_workout_id_matches_user_id, sql_input)
+
+    result = await self.bot.db.fetchrow(query, *positional_args)
+
+    if result is None:
+        return False
+    else:
+        return True
+
 
 async def fitness_goal_id_matches_user_id(self, fitness_goal_id, user_id):
     sql_input = {"fitness_goal_id": fitness_goal_id, "user_id": user_id}

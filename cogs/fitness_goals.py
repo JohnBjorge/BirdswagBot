@@ -41,7 +41,6 @@ class FitnessGoals(commands.Cog):
     @commands.command()
     async def goal(self, ctx, fitness_goal_id=None):
         user_id = ctx.author.id
-        fitness_goal_id = int(fitness_goal_id)
 
         if fitness_goal_id is None:
             sql_fetch_goal = \
@@ -59,8 +58,7 @@ class FitnessGoals(commands.Cog):
         else:
             sql_fetch_goal = \
                 ("""
-                    select
-                        fitness_goal_id,
+                    select fitness_goal_id,
                         start_date,
                         end_date,
                         note
@@ -68,6 +66,7 @@ class FitnessGoals(commands.Cog):
                     where fitness_goal_id = %(fitness_goal_id)s;
                 """)
 
+            fitness_goal_id = int(fitness_goal_id)
             sql_input = {"fitness_goal_id": fitness_goal_id}
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_goal, sql_input)
@@ -79,6 +78,7 @@ class FitnessGoals(commands.Cog):
     async def goal_history(self, ctx):
         user_id = ctx.author.id
 
+        # todo: change * to specific columns
         sql_goal_history = \
             ("""
                 select * 
@@ -141,7 +141,7 @@ class FitnessGoals(commands.Cog):
             await db_manager.fitness_goal_update_end_dates(self)
             print("I deleted a fitness goal")
 
-    # maybe break this out into goal_update_start_date, goal_update_note, etc
+    # todo: maybe break this out into goal_update_start_date, goal_update_note, etc
     @commands.command()
     async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
         user_id = ctx.author.id
