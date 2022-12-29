@@ -77,33 +77,39 @@ class Basic(commands.Cog):
     @commands.command()
     async def goal(self, ctx, fitness_goal_id=None):
         user_id = ctx.author.id
+        fitness_goal_id = int(fitness_goal_id)
         sql_fetch_goal = None
 
         if fitness_goal_id is None:
             sql_fetch_goal = \
-                (f"""
+                ("""
                     select fitness_goal_id,
                         start_date,
                         end_date,
                         note
                     from fitness_goal
-                    where user_id = {user_id}
+                    where user_id = %(user_id)s
                     order by end_date desc
                     limit 1
                 """)
+            sql_input = {"user_id": user_id}
         else:
             sql_fetch_goal = \
-                (f"""
+                ("""
                     select
                         fitness_goal_id,
                         start_date,
                         end_date,
                         note
                     from fitness_goal
-                    where fitness_goal_id = {fitness_goal_id};
+                    where fitness_goal_id = %(fitness_goal_id)s;
                 """)
 
-        row = await self.bot.db.fetchrow(sql_fetch_goal)
+            sql_input = {"fitness_goal_id": fitness_goal_id}
+
+        query, positional_args = db_manager.pyformat_to_psql(sql_fetch_goal, sql_input)
+
+        row = await self.bot.db.fetchrow(query, *positional_args)
         await ctx.send(row)
 
     @commands.command()
@@ -111,50 +117,71 @@ class Basic(commands.Cog):
         user_id = ctx.author.id
 
         sql_goal_history = \
-            (f"""
+            ("""
                 select * 
                 from fitness_goal
-                where user_id = {user_id}
+                where user_id = %(user_id)s
                 order by end_date desc;
             """)
 
-        result = await self.bot.db.fetch(sql_goal_history)
+        sql_input = {"user_id": user_id}
+
+        query, positional_args = db_manager.pyformat_to_psql(sql_goal_history, sql_input)
+
+        result = await self.bot.db.fetch(query, *positional_args)
 
         await ctx.send(result)
 
     @commands.command()
     async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
-        # don't let users update records that aren't theirs
         # maybe break this out into goal_update_start_date, goal_update_note, etc
-        # add helper function to handle updating end_dates for inferring
-        sql_update_fitness_goal = \
-            (f"""
-                update fitness_goal
-                set start_date = '{start_date}',
-                    note = '{note}'
-                where fitness_goal_id = {fitness_goal_id}
-            """)
+        user_id = ctx.author.id
 
-        await self.bot.db.execute(sql_update_fitness_goal)
-        await db_manager.fitness_goal_update_end_dates(self)
-        print("I updated a fitness_goal record")
+        fitness_goal_id = int(fitness_goal_id)
+
+        fitness_goal_id_matches_user_id = await db_manager.fitness_goal_id_matches_user_id(self, fitness_goal_id, user_id)
+
+        start_date = clean_data.clean_date(start_date)
+
+        if fitness_goal_id_matches_user_id:
+            sql_update_fitness_goal = \
+                ("""
+                    update fitness_goal
+                    set start_date = %(start_date)s,
+                        note = %(note)s
+                    where fitness_goal_id = %(fitness_goal_id)s
+                """)
+
+            sql_input = {"start_date": start_date, "note": note, "fitness_goal_id": fitness_goal_id}
+
+            query, positional_args = db_manager.pyformat_to_psql(sql_update_fitness_goal, sql_input)
+
+            await self.bot.db.execute(query, *positional_args)
+            await db_manager.fitness_goal_update_end_dates(self)
+            print("I updated a fitness_goal record")
 
     @commands.command()
     async def goal_delete(self, ctx, fitness_goal_id):
-        # first arg is goal id, delete goal, update inferred end dates
+        user_id = ctx.author.id
+        fitness_goal_id = int(fitness_goal_id)
 
-        fitness_goal_id = fitness_goal_id
+        fitness_goal_id_matches_user_id = await db_manager.fitness_goal_id_matches_user_id(self, fitness_goal_id, user_id)
 
-        sql_delete_fitness_goal = \
-            (f"""
-                delete from fitness_goal
-                where fitness_goal_id = {fitness_goal_id};
-            """)
+        if fitness_goal_id_matches_user_id:
+            sql_delete_fitness_goal = \
+                ("""
+                    delete from fitness_goal
+                    where fitness_goal_id = %(fitness_goal_id)s;
+                """)
 
-        await self.bot.db.execute(sql_delete_fitness_goal)
+            sql_input = {"fitness_goal_id": fitness_goal_id}
 
-        await db_manager.fitness_goal_update_end_dates(self)
-        print("I deleted a fitness goal")
+            query, positional_args = db_manager.pyformat_to_psql(sql_delete_fitness_goal, sql_input)
+
+            await self.bot.db.execute(query, *positional_args)
+
+            await db_manager.fitness_goal_update_end_dates(self)
+            print("I deleted a fitness goal")
 
 
 async def setup(bot):

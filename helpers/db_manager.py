@@ -16,6 +16,27 @@ def pyformat_to_psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[
     return formatted_query, positional_args
 
 
+async def fitness_goal_id_matches_user_id(self, fitness_goal_id, user_id):
+    sql_input = {"fitness_goal_id": fitness_goal_id, "user_id": user_id}
+
+    sql_fitness_goal_id_matches_user_id = \
+        ("""select 1
+            from fitness_goal
+            where user_id = %(user_id)s
+            and fitness_goal_id = %(fitness_goal_id)s
+            limit 1
+        """)
+
+    query, positional_args = pyformat_to_psql(sql_fitness_goal_id_matches_user_id, sql_input)
+
+    result = await self.bot.db.fetchrow(query, *positional_args)
+
+    if result is None:
+        return False
+    else:
+        return True
+
+
 async def fitness_goal_exist_user_id(self, user_id):
     sql_input = {'user_id': user_id}
 
@@ -69,6 +90,7 @@ async def show_tables(self):
 
 
 async def table_is_empty(self, table_name):
+    # not sure if I need to change to prepared statement, also not able to with table name
     sql_table_is_empty = \
         (f"""
             select *
