@@ -66,13 +66,30 @@ class FitnessGoals(commands.Cog):
                     where fitness_goal_id = %(fitness_goal_id)s;
                 """)
 
-            fitness_goal_id = int(fitness_goal_id)
+            # fitness_goal_id = int(fitness_goal_id)
             sql_input = {"fitness_goal_id": fitness_goal_id}
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_goal, sql_input)
 
         row = await self.bot.db.fetchrow(query, *positional_args)
         await ctx.send(row)
+
+    """Below is an example of a Local Error Handler for our command do_repeat"""
+
+    # todo: this is an example of a local error handler, this should be used for sending back user errors
+    #  other errors go to cog
+    @goal.error
+    async def goal_handler(self, ctx, error):
+        """A local Error Handler for our command do_repeat.
+        This will only listen for errors in do_repeat.
+        The global on_command_error will still be invoked after.
+        """
+
+        # Check if our required argument inp is missing.
+        if isinstance(error, commands.CommandInvokeError):
+            # if error.param.name == 'inp':
+            #     await ctx.send("You forgot to give me input to repeat!")
+            await ctx.send(error.__cause__)
 
     @commands.command()
     async def goal_history(self, ctx):
