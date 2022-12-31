@@ -1,4 +1,8 @@
 from helpers import db_manager
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 async def create_core_tables(self):

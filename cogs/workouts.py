@@ -2,6 +2,10 @@ from discord.ext import commands
 from helpers import core_tables
 from helpers import db_manager
 from helpers import clean_data
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Workouts(commands.Cog):

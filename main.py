@@ -4,7 +4,6 @@ import discord
 from dotenv import load_dotenv
 from bot import BirdswagBot
 import asyncio
-import asyncpg
 import argparse
 
 
@@ -26,10 +25,12 @@ async def main():
     args = parse_command()
     local_flag = args.local
 
+    logging.getLogger()  # root logger
+
     handler = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='w')
 
-    discord.utils.setup_logging(handler=handler, level=logging.DEBUG, root=False)
-    discord.utils.setup_logging(level=logging.DEBUG, root=False)
+    discord.utils.setup_logging(handler=handler, level=logging.INFO, root=True)
+    discord.utils.setup_logging(level=logging.INFO, root=True)
 
     bot = BirdswagBot()
 

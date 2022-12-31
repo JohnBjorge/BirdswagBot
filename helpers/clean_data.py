@@ -1,4 +1,8 @@
 from datetime import datetime, date, timedelta
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def clean_date(user_date):

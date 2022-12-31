@@ -1,6 +1,9 @@
 from discord.ext import commands
 from helpers import core_tables
 from helpers import db_manager
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Basic(commands.Cog):

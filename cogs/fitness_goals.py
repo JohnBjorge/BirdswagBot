@@ -2,6 +2,10 @@ from discord.ext import commands
 from helpers import db_manager
 from helpers import clean_data
 from datetime import date
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class FitnessGoals(commands.Cog):
@@ -73,23 +77,6 @@ class FitnessGoals(commands.Cog):
 
         row = await self.bot.db.fetchrow(query, *positional_args)
         await ctx.send(row)
-
-    """Below is an example of a Local Error Handler for our command do_repeat"""
-
-    # todo: this is an example of a local error handler, this should be used for sending back user errors
-    #  other errors go to cog
-    @goal.error
-    async def goal_handler(self, ctx, error):
-        """A local Error Handler for our command do_repeat.
-        This will only listen for errors in do_repeat.
-        The global on_command_error will still be invoked after.
-        """
-
-        # Check if our required argument inp is missing.
-        if isinstance(error, commands.CommandInvokeError):
-            # if error.param.name == 'inp':
-            #     await ctx.send("You forgot to give me input to repeat!")
-            await ctx.send(error.__cause__)
 
     @commands.command()
     async def goal_history(self, ctx):

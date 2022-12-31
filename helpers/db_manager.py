@@ -1,6 +1,10 @@
 import collections
 import itertools
 from typing import Any, Dict, Tuple, List
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 # https://github.com/MagicStack/asyncpg/issues/9#issuecomment-600659015

@@ -1,6 +1,10 @@
 import discord
 from discord.ext import commands
 import asyncpg
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class BirdswagBot(commands.Bot):

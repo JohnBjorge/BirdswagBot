@@ -11,6 +11,10 @@ import discord
 import traceback
 import sys
 from discord.ext import commands
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 # todo: at a high level this will handle everything
@@ -18,6 +22,10 @@ from discord.ext import commands
 class CommandErrorHandler(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print("Command error handling cog ready")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -29,6 +37,11 @@ class CommandErrorHandler(commands.Cog):
         error: commands.CommandError
             The Exception raised.
         """
+
+        # todo: figure out my logging setup!!!
+        # logger = logging.getLogger("not root")
+
+        logger.error("test_logger_name")
 
         # This prevents any commands with local handlers being handled here in on_command_error.
         if hasattr(ctx.command, 'on_error'):
