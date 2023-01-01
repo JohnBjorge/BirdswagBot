@@ -79,6 +79,8 @@ class Workouts(commands.Cog):
 
         await ctx.send(result)
 
+    # todo: restrict type_of_workout to valid items and notify user if wrong, same for difficulty
+    # todo: consider emoji functionality for difficulty, voting system
     @commands.command()
     async def workout_new(self, ctx, date, type_of_workout, difficulty, *, note):
         user_id = ctx.author.id
