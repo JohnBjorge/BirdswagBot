@@ -20,8 +20,6 @@ class Basic(commands.Cog):
         db_tables = await db_manager.show_tables(self)
         # add check for three tables otherwise throw error?
 
-        print("Basic cog ready")
-
     @commands.Cog.listener()
     async def on_member_join(self, member):
         pass

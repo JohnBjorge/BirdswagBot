@@ -16,7 +16,7 @@ class Workouts(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("Workouts cog ready")
+        pass
 
     @commands.command()
     async def workout(self, ctx, workout_id=None):

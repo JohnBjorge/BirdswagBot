@@ -25,7 +25,7 @@ async def main():
     args = parse_command()
     local_flag = args.local
 
-    logging.getLogger()  # root logger
+    logger = logging.getLogger()  # root logger
 
     handler = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='w')
 
@@ -49,6 +49,8 @@ async def main():
 
 #        https: // stackoverflow.com / questions / 71625788 / accesing - loop - attribute - in -non -async-contexts
         await bot.create_db_pool(database, db_user, db_password)
+
+        logger.info("Connection to database established, starting up bot!")
 
         await bot.start(discord_token)
 

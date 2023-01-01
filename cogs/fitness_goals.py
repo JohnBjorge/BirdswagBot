@@ -15,7 +15,7 @@ class FitnessGoals(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("FitnessGoals cog ready")
+        pass
 
     @commands.command()
     async def join(self, ctx):
@@ -70,7 +70,7 @@ class FitnessGoals(commands.Cog):
                     where fitness_goal_id = %(fitness_goal_id)s;
                 """)
 
-            # fitness_goal_id = int(fitness_goal_id)
+            fitness_goal_id = int(fitness_goal_id)
             sql_input = {"fitness_goal_id": fitness_goal_id}
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_goal, sql_input)

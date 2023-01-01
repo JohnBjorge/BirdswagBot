@@ -25,7 +25,7 @@ class CommandErrorHandler(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print("Command error handling cog ready")
+        pass
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -37,11 +37,6 @@ class CommandErrorHandler(commands.Cog):
         error: commands.CommandError
             The Exception raised.
         """
-
-        # todo: figure out my logging setup!!!
-        # logger = logging.getLogger("not root")
-
-        logger.error("test_logger_name")
 
         # This prevents any commands with local handlers being handled here in on_command_error.
         if hasattr(ctx.command, 'on_error'):
@@ -79,8 +74,8 @@ class CommandErrorHandler(commands.Cog):
 
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
-            print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            exc_info = (type(error), error, error.__traceback__)
+            logger.error('Exception occurred in command: {}'.format(ctx.command), exc_info=exc_info)
 
     """Below is an example of a Local Error Handler for our command do_repeat"""
 
