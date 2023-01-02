@@ -15,6 +15,9 @@ class Basic(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    # todo: this appears to get run multiple times and not sure when or why, documentation seems to indicate it won't
+    #  necessarily get run once. Where should I instantiate these tables that only need to happen once? Right now it's
+    #  fine here since I say "create or replace" or "create if not exists".
     @commands.Cog.listener()
     async def on_ready(self):
         await core_tables.create_core_tables(self)
