@@ -3,6 +3,7 @@ from helpers import core_tables
 from helpers import db_manager
 from helpers import clean_data
 import logging
+from cogs import basic
 
 
 logger = logging.getLogger(__name__)
@@ -100,6 +101,12 @@ class Workouts(commands.Cog):
         query, positional_args = db_manager.pyformat_to_psql(sql_workout_new, sql_input)
 
         await self.bot.db.execute(query, *positional_args)
+
+        workout_id = await db_manager.newest_workout(self, user_id)
+
+        content, embed = basic.embed_workout(ctx, workout_id, user_id, date, type_of_workout, difficulty, note)
+
+        await ctx.send(content=content, embed=embed)
 
         print("I created a new workout for you")
 

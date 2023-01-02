@@ -15,7 +15,9 @@ async def create_core_tables(self):
                 type_of_workout text not null,
                 difficulty int not null,
                 note text not null,
-                constraint valid_type_of_workout check (type_of_workout in ('cardio', 'strength', 'balance', 'flexibility')),
+                created_on timestamptz default current_timestamp not null,
+                updated_on timestamptz default current_timestamp not null,
+                constraint valid_type_of_workout check (type_of_workout in ('Endurance', 'Strength', 'Balance', 'Flexibility')),
                 constraint valid_difficulty check (difficulty in (1, 2, 3, 4)),
                 constraint pkey_workout_id primary key (workout_id)
             );
@@ -31,6 +33,8 @@ async def create_core_tables(self):
                     start_date date not null,
                     end_date date not null,
                     note text not null,
+                    created_on timestamptz default current_timestamp not null,
+                    updated_on timestamptz default current_timestamp not null,
                     constraint pkey_fitness_goal_id primary key (fitness_goal_id)
             );
         """)
@@ -132,6 +136,33 @@ async def populate_table_date_dimension(self):
     date_dimension_empty = await db_manager.table_is_empty(self, "date_dimension")
     if date_dimension_empty:
         await self.bot.db.execute(sql_populate_date_dimension)
+
+
+async def create_updated_on_trigger(self):
+    sql_create_update_updated_on_column_function = \
+        ("""
+            create or replace function update_updated_on_column() 
+            returns trigger as $$
+            begin
+                new.updated_on = now();
+                return new; 
+            end;
+            $$ language 'plpgsql';
+        """)
+
+    sql_create_workout_updated_on_trigger = \
+        ("""
+            create or replace trigger update_workout_updated_on_column before update on workout for each row execute procedure update_updated_on_column();
+        """)
+
+    sql_create_fitness_goal_updated_on_trigger = \
+        ("""
+            create or replace trigger update_fitness_goal_updated_on_column before update on fitness_goal for each row execute procedure update_updated_on_column();
+        """)
+
+    await self.bot.db.execute(sql_create_update_updated_on_column_function)
+    await self.bot.db.execute(sql_create_workout_updated_on_trigger)
+    await self.bot.db.execute(sql_create_fitness_goal_updated_on_trigger)
 
 
 
