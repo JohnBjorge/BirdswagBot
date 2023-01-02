@@ -82,7 +82,7 @@ def embed_workout(ctx, workout_id, date, type_of_workout, difficulty, note):
                     inline=True)
     embed.add_field(name="Difficulty", value=str(difficulty) + " out of 4", inline=True)
 
-    embed.add_field(name="Note", value="> " + note, inline=False)
+    embed.add_field(name="Note", value=">>> " + note, inline=False)
 
     return content, embed
 
@@ -107,7 +107,7 @@ def embed_workout_new(ctx, workout_id, date, type_of_workout, difficulty, note):
                     inline=True)
     embed.add_field(name="Difficulty", value=str(difficulty) + " out of 4", inline=True)
 
-    embed.add_field(name="Note", value="> " + note, inline=False)
+    embed.add_field(name="Note", value=">>> " + note, inline=False)
 
     return content, embed
 
@@ -131,7 +131,7 @@ def embed_join(ctx, fitness_goal_id, user_id, start_date, end_date, note):
     embed.add_field(name="End Date",
                     value=end_date,
                     inline=True)
-    embed.add_field(name="Note", value="> " + note, inline=False)
+    embed.add_field(name="Note", value=">>> " + note, inline=False)
 
     return content, embed
 
@@ -154,7 +154,7 @@ def embed_goal(ctx, fitness_goal_id, start_date, end_date, note):
     embed.add_field(name="End Date",
                     value=end_date,
                     inline=True)
-    embed.add_field(name="Note", value="> " + note, inline=False)
+    embed.add_field(name="Note", value=">>> " + note, inline=False)
 
     return content, embed
 
