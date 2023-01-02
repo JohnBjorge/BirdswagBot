@@ -17,6 +17,7 @@ async def load_extensions(bot):
 def parse_command():
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--local", help="option to run on local machine", action="store_true")
+    parser.add_argument("-d", "--debug", help="option to run on debug mode for detailed logging", action="store_true")
     args = parser.parse_args()
     return args
 
@@ -24,13 +25,18 @@ def parse_command():
 async def main():
     args = parse_command()
     local_flag = args.local
+    debug_flag = args.debug
 
     logger = logging.getLogger()  # root logger
 
     handler = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='w')
 
-    discord.utils.setup_logging(handler=handler, level=logging.INFO, root=True)
-    discord.utils.setup_logging(level=logging.INFO, root=True)
+    if debug_flag:
+        discord.utils.setup_logging(handler=handler, level=logging.DEBUG, root=True)
+        discord.utils.setup_logging(level=logging.DEBUG, root=True)
+    else:
+        discord.utils.setup_logging(handler=handler, level=logging.INFO, root=True)
+        discord.utils.setup_logging(level=logging.INFO, root=True)
 
     bot = BirdswagBot()
 

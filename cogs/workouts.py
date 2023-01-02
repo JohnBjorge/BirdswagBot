@@ -38,6 +38,7 @@ class Workouts(commands.Cog):
                     limit 1
                 """)
             sql_input = {"user_id": user_id}
+            logger.debug(f'Fetching most recent workout for user_id: {user_id}')
         else:
             sql_fetch_workout = \
                 ("""
@@ -50,9 +51,9 @@ class Workouts(commands.Cog):
                     from workout
                     where workout_id = %(workout_id)s;
                 """)
-
             workout_id = int(workout_id)
             sql_input = {"workout_id": workout_id}
+            logger.debug(f'Fetching workout with workout_id: {workout_id}')
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_workout, sql_input)
 
@@ -75,6 +76,8 @@ class Workouts(commands.Cog):
         sql_input = {"user_id": user_id}
 
         query, positional_args = db_manager.pyformat_to_psql(sql_workout_history, sql_input)
+
+        logger.debug(f'Fetching workout history for user_id: {user_id}')
 
         result = await self.bot.db.fetch(query, *positional_args)
 
@@ -100,6 +103,12 @@ class Workouts(commands.Cog):
 
         query, positional_args = db_manager.pyformat_to_psql(sql_workout_new, sql_input)
 
+        logger.debug(f'Inserting new workout for user_id: {user_id}\n'
+                     f'Date: {date}\n'
+                     f'Type of Workout: {type_of_workout}\n'
+                     f'Difficulty: {difficulty}\n'
+                     f'Note: {note}')
+
         await self.bot.db.execute(query, *positional_args)
 
         workout_id = await db_manager.newest_workout(self, user_id)
@@ -107,8 +116,6 @@ class Workouts(commands.Cog):
         content, embed = basic.embed_workout(ctx, workout_id, user_id, date, type_of_workout, difficulty, note)
 
         await ctx.send(content=content, embed=embed)
-
-        print("I created a new workout for you")
 
     @commands.command()
     async def workout_delete(self, ctx, workout_id):
@@ -128,9 +135,9 @@ class Workouts(commands.Cog):
 
             query, positional_args = db_manager.pyformat_to_psql(sql_delete_workout, sql_input)
 
-            await self.bot.db.execute(query, *positional_args)
+            logger.debug(f'Deleting workout with workout_id: {workout_id}')
 
-            print("I deleted a workout")
+            await self.bot.db.execute(query, *positional_args)
 
     # todo: implement update command, need to consider how emoji voting will play into this, assuming it does and
     #  which fields you are allowed to update

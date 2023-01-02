@@ -37,10 +37,14 @@ class FitnessGoals(commands.Cog):
                 """)
             query, positional_args = db_manager.pyformat_to_psql(sql_insert_fitness_goal, sql_input)
 
+            logger.debug(f'Inserting new fitness goal for user_id: {user_id}\n'
+                         f'Start Date: {start_date}\n'
+                         f'End Date: {end_date}\n'
+                         f'Note: {note}')
+
             await self.bot.db.execute(query, *positional_args)
-            print("I created a new fitness_goal entry for you")
         else:
-            print("User already exists, sorry!")
+            logger.debug(f'User has already joined, user_id: {user_id}\n')
 
     @commands.command()
     async def goal(self, ctx, fitness_goal_id=None):
@@ -59,6 +63,7 @@ class FitnessGoals(commands.Cog):
                     limit 1
                 """)
             sql_input = {"user_id": user_id}
+            logger.debug(f'Fetching fitness goal for user_id: {user_id}')
         else:
             sql_fetch_goal = \
                 ("""
@@ -72,6 +77,7 @@ class FitnessGoals(commands.Cog):
 
             fitness_goal_id = int(fitness_goal_id)
             sql_input = {"fitness_goal_id": fitness_goal_id}
+            logger.debug(f'Fetching fitness goal for fitness_goal_id: {fitness_goal_id}')
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_goal, sql_input)
 
@@ -95,6 +101,8 @@ class FitnessGoals(commands.Cog):
 
         query, positional_args = db_manager.pyformat_to_psql(sql_goal_history, sql_input)
 
+        logger.debug(f'Fetching fitness_goal history for user_id: {user_id}')
+
         result = await self.bot.db.fetch(query, *positional_args)
 
         await ctx.send(result)
@@ -116,11 +124,14 @@ class FitnessGoals(commands.Cog):
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fitness_goal_new, sql_input)
 
+        logger.debug(f'Inserting new fitness goal for user_id: {user_id}\n'
+                     f'Start Date: {start_date}\n'
+                     f'End Date (placeholder, to be updated): {end_date}\n'
+                     f'Note: {note}\n')
+
         await self.bot.db.execute(query, *positional_args)
 
         await db_manager.fitness_goal_update_end_dates(self)
-
-        print("I created a new goal for you")
 
     @commands.command()
     async def goal_delete(self, ctx, fitness_goal_id):
@@ -140,10 +151,11 @@ class FitnessGoals(commands.Cog):
 
             query, positional_args = db_manager.pyformat_to_psql(sql_delete_fitness_goal, sql_input)
 
+            logger.debug(f'Deleting fitness goal with fitness_goal_id: {fitness_goal_id}')
+
             await self.bot.db.execute(query, *positional_args)
 
             await db_manager.fitness_goal_update_end_dates(self)
-            print("I deleted a fitness goal")
 
     # todo: maybe break this out into goal_update_start_date, goal_update_note, etc
     @commands.command()
@@ -171,7 +183,6 @@ class FitnessGoals(commands.Cog):
 
             await self.bot.db.execute(query, *positional_args)
             await db_manager.fitness_goal_update_end_dates(self)
-            print("I updated a fitness_goal record")
 
 
 async def setup(bot):
