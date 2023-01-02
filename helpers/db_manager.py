@@ -20,6 +20,24 @@ def pyformat_to_psql(query: str, named_args: Dict[str, Any]) -> Tuple[str, List[
     return formatted_query, positional_args
 
 
+async def newest_fitness_goal(self, user_id):
+    sql_input = {"user_id": user_id}
+
+    sql_newest_fitness_goal = \
+        ("""select fitness_goal_id
+            from fitness_goal
+            where user_id = %(user_id)s
+            order by updated_on desc
+            limit 1
+        """)
+
+    query, positional_args = pyformat_to_psql(sql_newest_fitness_goal, sql_input)
+
+    result = await self.bot.db.fetchrow(query, *positional_args)
+
+    return result["fitness_goal_id"]
+
+
 async def newest_workout(self, user_id):
     sql_input = {"user_id": user_id}
 

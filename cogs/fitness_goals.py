@@ -3,6 +3,7 @@ from helpers import db_manager
 from helpers import clean_data
 from datetime import date
 import logging
+from cogs import basic
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,7 @@ class FitnessGoals(commands.Cog):
             end_date = date(2999, 12, 31)
             note = "No goals yet"
 
-            sql_input = dict({"user_id": user_id, "start_date": start_date, "end_date": end_date, "note": note})
+            sql_input = {"user_id": user_id, "start_date": start_date, "end_date": end_date, "note": note}
 
             sql_insert_fitness_goal = \
                 ("""
@@ -43,7 +44,14 @@ class FitnessGoals(commands.Cog):
                          f'Note: {note}')
 
             await self.bot.db.execute(query, *positional_args)
+
+            fitness_goal_id = await db_manager.newest_fitness_goal(self, user_id)
+
+            content, embed = basic.embed_join(ctx, fitness_goal_id, user_id, start_date, end_date, note)
+
+            await ctx.send(content=content, embed=embed)
         else:
+            await ctx.send("You have already joined. Try running $goal to see your current fitness goal.")
             logger.debug(f'User has already joined, user_id: {user_id}\n')
 
     @commands.command()

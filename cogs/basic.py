@@ -85,6 +85,28 @@ def embed_workout(ctx, workout_id, user_id, date, type_of_workout, difficulty, n
 
     return content, embed
 
+def embed_join(ctx, fitness_goal_id, user_id, start_date, end_date, note):
+    content = \
+        """"""
+
+    embed = discord.Embed(title="Fitness Goal Created :saluting_face:",
+                          url='',
+                          description="Unique id: " + str(fitness_goal_id),
+                          color=0x1036cb,
+                          timestamp=datetime.today())
+    embed.set_author(name=ctx.author, url="",
+                     icon_url='https://cdn.discordapp.com/embed/avatars/0.png')
+    embed.set_thumbnail(url='https://cdn.discordapp.com/embed/avatars/0.png')
+    embed.set_image(url='')
+
+    embed.add_field(name="Start Date", value=start_date, inline=True)
+    embed.add_field(name="End Date",
+                    value=end_date,
+                    inline=True)
+    embed.add_field(name="Note", value="> " + note, inline=False)
+
+    return content, embed
+
 
 async def setup(bot):
     await bot.add_cog(Basic(bot))
