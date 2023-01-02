@@ -89,8 +89,11 @@ class FitnessGoals(commands.Cog):
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_goal, sql_input)
 
-        row = await self.bot.db.fetchrow(query, *positional_args)
-        await ctx.send(row)
+        result = await self.bot.db.fetchrow(query, *positional_args)
+
+        content, embed = basic.embed_goal(ctx, result["fitness_goal_id"], result["start_date"], result["end_date"], result["note"])
+
+        await ctx.send(content=content, embed=embed)
 
     @commands.command()
     async def goal_history(self, ctx):
