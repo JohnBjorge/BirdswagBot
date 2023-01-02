@@ -57,8 +57,11 @@ class Workouts(commands.Cog):
 
         query, positional_args = db_manager.pyformat_to_psql(sql_fetch_workout, sql_input)
 
-        row = await self.bot.db.fetchrow(query, *positional_args)
-        await ctx.send(row)
+        result = await self.bot.db.fetchrow(query, *positional_args)
+
+        content, embed = basic.embed_workout(ctx, result["workout_id"], result["date"], result["type_of_workout"], result["difficulty"], result["note"])
+
+        await ctx.send(content=content, embed=embed)
 
     @commands.command()
     async def workout_history(self, ctx):
@@ -113,7 +116,7 @@ class Workouts(commands.Cog):
 
         workout_id = await db_manager.newest_workout(self, user_id)
 
-        content, embed = basic.embed_workout(ctx, workout_id, user_id, date, type_of_workout, difficulty, note)
+        content, embed = basic.embed_workout_new(ctx, workout_id, date, type_of_workout, difficulty, note)
 
         await ctx.send(content=content, embed=embed)
 
