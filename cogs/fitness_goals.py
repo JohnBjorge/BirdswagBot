@@ -95,6 +95,9 @@ class FitnessGoals(commands.Cog):
 
         await ctx.send(content=content, embed=embed)
 
+    # todo: change to allow csv or txt parameter, upload entire data table file
+    #  storage on GC instance? what happens when you save file, upload, delete file? I'm assuming discord handles that
+    #  should there be an option for a time range?
     @commands.command()
     async def goal_history(self, ctx):
         user_id = ctx.author.id
