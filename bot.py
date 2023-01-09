@@ -2,8 +2,7 @@ import discord
 from discord.ext import commands
 import asyncpg
 import logging
-import help_command
-
+from helpers import help_command
 
 logger = logging.getLogger(__name__)
 
