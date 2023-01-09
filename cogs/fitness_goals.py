@@ -4,6 +4,7 @@ from helpers import clean_data
 from datetime import date
 import logging
 from cogs import basic
+import discord
 
 
 logger = logging.getLogger(__name__)
@@ -120,6 +121,45 @@ class FitnessGoals(commands.Cog):
         result = await self.bot.db.fetch(query, *positional_args)
 
         await ctx.send(result)
+
+    @commands.command()
+    async def goal_dump(self, ctx, file_format='txt'):
+        user_id = ctx.author.id
+
+        # todo: change * to specific columns
+        sql_goal_history = \
+            ("""
+                select fitness_goal_id,
+                start_date,
+                end_date,
+                note
+                from fitness_goal
+                where user_id = %(user_id)s
+                order by end_date desc;
+            """)
+
+        sql_input = {"user_id": user_id}
+
+        query, positional_args = db_manager.pyformat_to_psql(sql_goal_history, sql_input)
+
+        logger.debug(f'Fetching fitness_goal history for user_id: {user_id}')
+
+        result = await self.bot.db.fetch(query, *positional_args)
+
+        tabulated_data = basic.tabulate_sample(self, result)
+
+        if file_format == 'txt':
+            with open('sandbox/sample_dump.txt', 'w') as f:
+                f.write(tabulated_data)
+
+            await ctx.send(file=discord.File(r'./sandbox/sample_dump.txt'))
+
+        elif file_format == 'csv':
+            # todo: csv dump, should be possible by making tabulate output to tsv then change to csv
+            # todo: one issue was tsv doesn't allow new lines so some notes have newlines which means we need to
+            #  replace the new line character before tabulate step with __NEWLINE__ then post tabulate and post
+            #  conversion to csv we replace __NEWLINE__ to \n
+            pass
 
     @commands.command()
     async def goal_new(self, ctx, start_date, *, note):

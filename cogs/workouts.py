@@ -1,9 +1,11 @@
 from discord.ext import commands
+import discord
 from helpers import core_tables
 from helpers import db_manager
 from helpers import clean_data
 import logging
 from cogs import basic
+import csv
 
 
 logger = logging.getLogger(__name__)
@@ -88,6 +90,45 @@ class Workouts(commands.Cog):
         result = await self.bot.db.fetch(query, *positional_args)
 
         await ctx.send(result)
+
+    @commands.command()
+    async def workout_dump(self, ctx, file_format='txt'):
+        user_id = ctx.author.id
+
+        sql_workout_history = \
+            ("""
+                select workout_id,
+                date,
+                type_of_workout,
+                difficulty,
+                note
+                from workout
+                where user_id = %(user_id)s
+                order by date desc;
+            """)
+
+        sql_input = {"user_id": user_id}
+
+        query, positional_args = db_manager.pyformat_to_psql(sql_workout_history, sql_input)
+
+        logger.debug(f'Fetching workout history for user_id: {user_id}')
+
+        result = await self.bot.db.fetch(query, *positional_args)
+
+        tabulated_data = basic.tabulate_sample(self, result)
+
+        if file_format == 'txt':
+            with open('sandbox/sample_dump.txt', 'w') as f:
+                f.write(tabulated_data)
+
+            await ctx.send(file=discord.File(r'./sandbox/sample_dump.txt'))
+
+        elif file_format == 'csv':
+            # todo: csv dump, should be possible by making tabulate output to tsv then change to csv
+            # todo: one issue was tsv doesn't allow new lines so some notes have newlines which means we need to
+            #  replace the new line character before tabulate step with __NEWLINE__ then post tabulate and post
+            #  conversion to csv we replace __NEWLINE__ to \n
+            pass
 
     # todo: restrict type_of_workout to valid items and notify user if wrong, same for difficulty
     # todo: consider emoji functionality for difficulty, voting system

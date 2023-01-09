@@ -5,6 +5,10 @@ from helpers import db_manager
 from datetime import datetime
 import logging
 import json
+from tabulate import tabulate
+
+
+tabulate.PRESERVE_WHITESPACE = True
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +63,13 @@ class Basic(commands.Cog):
 
         embed.set_footer(text="footer text", icon_url='https://cdn.discordapp.com/embed/avatars/0.png')
         await ctx.send(content=content, embed=embed)
+
+
+def tabulate_sample(ctx, result):
+    data = [dict(row) for row in result]
+
+    output = tabulate(data, tablefmt="rounded_grid", headers="keys")
+    return output
 
 
 # todo: combine embed_workout and embed_workout_new, only difference right now is the title
