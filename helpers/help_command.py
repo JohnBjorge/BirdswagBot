@@ -15,6 +15,16 @@ class CustomHelpCommand(commands.HelpCommand):
             if cog is not None:
                 await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in mapping[cog]]}')
 
+                # todo: make an embed for help commands
+                # embed = discord.Embed(title='TITLE_HERE', description='DESCRIPTION_HERE', color=BLUE)
+                # for cog, cmds in mapping.items():
+                #     name = cog.qualified_name
+                #     embed.add_field(name=name, value=f"{len(cmds)} commands")
+                #     embed.set_thumbnail(url='IMAGE_URL_HERE')
+
+                # channel = self.get_destination()
+                # await channel.send(embed=embed)
+
     async def send_cog_help(self, cog):
         await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in cog.get_commands()]}')
 
