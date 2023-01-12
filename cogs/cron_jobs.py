@@ -13,13 +13,9 @@ class CronJobs(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-        @aiocron.crontab("0 19 * * *")  # everyday at 7pm check for awards
-        #@aiocron.crontab("* * * * * */10")  # every 10 seconds for testing
+        # @aiocron.crontab("0 19 * * *")  # everyday at 7pm check for awards
+        @aiocron.crontab("* * * * * */10")  # every 10 seconds for testing
         async def awards_notification():
-            # todo: get rid of hardcoded channel id?
-
-            await bot.get_channel(1045906913080115225).send("It is Sunday at 7pm")
-
             current_date = date.today()
 
             sql_input = {"current_date": current_date}
@@ -42,7 +38,7 @@ class CronJobs(commands.Cog):
 
             result = await self.bot.db.fetchrow(query, *positional_args)
 
-            if result["day_of_week"] == 7:
+            if result["day_of_week"] == 3:
                 await awards.award_weekly(self, result["year_actual"], result["week_of_year"])
 
             if result["day_of_quarter"] == 1:

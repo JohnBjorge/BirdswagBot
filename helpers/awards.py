@@ -1,6 +1,7 @@
 import logging
 from helpers import db_manager
-
+from datetime import datetime
+import discord
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,52 @@ def award_workouts_scoreboard():
 
     return sql_workouts_scoreboard
 
+# todo: clean up some names and refactor maybe
+async def award_embed(self, cadence, year_actual, time_period, result):
+    content = \
+        """"""
 
-# todo: has not been tested
-async def award_weekly(self, ctx, year_actual, week_of_year):
+    title = ""
+    description = ""
+    if cadence == "Weekly":
+        title = cadence + " Shoutouts :saluting_face:"
+        description = str(year_actual) + ": Week " + str(time_period)
+    elif cadence == "Quarterly":
+        title = cadence + " Awards :saluting_face:"
+        description = str(year_actual) + ": Quarter " + str(time_period)
+    elif cadence == "Yearly":
+        title = cadence + " Awards :saluting_face:"
+        description = str(year_actual) + ": yes, the entire year"
+
+    embed = discord.Embed(title=title,
+                          url='',
+                          description=description,
+                          color=0x1036cb,
+                          timestamp=datetime.today())
+    embed.set_author(name="Birdswag Bot", url="",
+                     icon_url='https://cdn.discordapp.com/embed/avatars/0.png')
+    embed.set_thumbnail(url='https://cdn.discordapp.com/embed/avatars/0.png')
+    embed.set_image(url='')
+
+    position = 1
+    names = ""
+    for dict_item in result:
+        total_workouts = dict_item["total_workouts"]
+
+        avg_difficulty = dict_item["avg_difficulty"]
+        user_id = dict_item["user_id"]
+        username = self.bot.get_user(dict_item["user_id"])
+
+        names = names + f'{position} - @{username}: {total_workouts} workouts, average difficulty {avg_difficulty}\n'
+        content = content + f'<@{user_id}> '
+        position = position + 1
+
+    embed.add_field(name="Leaderboard (by total workouts, tie goes to average difficulty)", value=names, inline=False)
+
+    return content, embed
+
+
+async def award_weekly(self, year_actual, week_of_year):
     sql_cte_workouts_scoreboard = award_workouts_scoreboard()
 
     sql_input = {"year_actual": year_actual, "week_of_year": week_of_year}
@@ -37,7 +81,7 @@ async def award_weekly(self, ctx, year_actual, week_of_year):
             select user_id,
             year_actual,
             week_of_year,
-            sum(total_workouts),
+            sum(total_workouts) as total_workouts,
             round(sum(total_difficulty) / sum(total_workouts), 2) as avg_difficulty
             from workouts_scoreboard
             where year_actual = %(year_actual)s
@@ -51,9 +95,11 @@ async def award_weekly(self, ctx, year_actual, week_of_year):
     logger.debug(f'Returning award list for year {year_actual} and week {week_of_year}\n')
 
     result = await self.bot.db.fetch(query, *positional_args)
+    result = [dict(row) for row in result]
 
-    # todo: turn this into an embed
-    await self.bot.get_channel(1045906913080115225).send(result)
+    content, embed = await award_embed(self, "Weekly", year_actual, week_of_year, result)
+
+    await self.bot.get_channel(1045906913080115225).send(content=content, embed=embed)
 
 
 # todo: has not been tested
@@ -82,8 +128,11 @@ async def award_quarterly(self, year_actual, quarter_actual):
 
     result = await self.bot.db.fetch(query, *positional_args)
 
-    # todo: turn this into an embed
-    await self.bot.get_channel(1045906913080115225).send(result)
+    result = [dict(row) for row in result]
+
+    content, embed = await award_embed(self, "Quarterly", year_actual, quarter_actual, result)
+
+    await self.bot.get_channel(1045906913080115225).send(content=content, embed=embed)
 
 
 # todo: has not been tested
@@ -110,5 +159,8 @@ async def award_yearly(self, year_actual):
 
     result = await self.bot.db.fetch(query, *positional_args)
 
-    # todo: turn this into an embed
-    await self.bot.get_channel(1045906913080115225).send(result)
+    result = [dict(row) for row in result]
+
+    content, embed = await award_embed(self, "Yearly", year_actual, None, result)
+
+    await self.bot.get_channel(1045906913080115225).send(content=content, embed=embed)
