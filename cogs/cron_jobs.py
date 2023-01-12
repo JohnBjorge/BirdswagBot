@@ -38,7 +38,7 @@ class CronJobs(commands.Cog):
 
             result = await self.bot.db.fetchrow(query, *positional_args)
 
-            if result["day_of_week"] == 3:
+            if result["day_of_week"] == 7:
                 await awards.award_weekly(self, result["year_actual"], result["week_of_year"])
 
             if result["day_of_quarter"] == 1:
