@@ -5,16 +5,16 @@ from helpers import awards
 from datetime import date
 from helpers import db_manager
 
+
 logger = logging.getLogger(__name__)
 
 
-# you can also import this from else where.
 class CronJobs(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-        # @aiocron.crontab("0 19 * * *")  # everyday at 7pm check for awards
-        @aiocron.crontab("* * * * * */10")  # every 10 seconds for testing
+        @aiocron.crontab("0 19 * * *")  # everyday at 7pm check for awards
+        # @aiocron.crontab("* * * * * */10")  # every 10 seconds for testing
         async def awards_notification():
             current_date = date.today()
 

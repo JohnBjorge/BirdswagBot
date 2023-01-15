@@ -35,6 +35,7 @@ class Basic(commands.Cog):
     async def on_member_join(self, member):
         pass
 
+    # todo: remove this function?
     @commands.command()
     async def embed_sample(self, ctx):
         content = \
@@ -65,13 +66,14 @@ class Basic(commands.Cog):
         await ctx.send(content=content, embed=embed)
 
 
+# todo: remove this function?
 def tabulate_sample(ctx, result):
     data = [dict(row) for row in result]
 
     output = tabulate(data, tablefmt="rounded_grid", headers="keys")
     return output
 
-
+# todo: move embeds to helpers, cogs are for commands
 # todo: combine embed_workout and embed_workout_new, only difference right now is the title
 def embed_workout(ctx, workout_id, date, type_of_workout, difficulty, note):
     content = \

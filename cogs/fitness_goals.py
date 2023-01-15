@@ -212,6 +212,7 @@ class FitnessGoals(commands.Cog):
             await db_manager.fitness_goal_update_end_dates(self)
 
     # todo: maybe break this out into goal_update_start_date, goal_update_note, etc
+    # todo: scrap update command? too much complexity?
     @commands.command()
     async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
         user_id = ctx.author.id

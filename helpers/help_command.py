@@ -5,6 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# todo: improve and build out help commands!
 class CustomHelpCommand(commands.HelpCommand):
 
     def __init__(self):

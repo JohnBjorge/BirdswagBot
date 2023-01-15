@@ -28,6 +28,7 @@ def award_workouts_scoreboard():
 
 
 # todo: clean up some names and refactor maybe
+# todo: see if can make prettier?
 async def award_embed(self, cadence, year_actual, time_period, result):
     content = \
         """"""

@@ -22,6 +22,7 @@ def parse_command():
     return args
 
 
+# todo: cleanup and organize
 async def main():
     args = parse_command()
     local_flag = args.local

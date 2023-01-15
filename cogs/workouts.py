@@ -131,7 +131,6 @@ class Workouts(commands.Cog):
             pass
 
     # todo: restrict type_of_workout to valid items and notify user if wrong, same for difficulty
-    # todo: consider emoji functionality for difficulty, voting system
     @commands.command()
     async def workout_new(self, ctx, date, type_of_workout, difficulty, *, note):
         user_id = ctx.author.id
@@ -188,9 +187,12 @@ class Workouts(commands.Cog):
 
     # todo: implement update command, need to consider how emoji voting will play into this, assuming it does and
     #  which fields you are allowed to update
+    # todo: conssider scrapping this, too complex?
     @commands.command()
     async def workout_update(self, ctx, start_date, *, note):
         pass
+
+# todo: add search command
 
 
 async def setup(bot):

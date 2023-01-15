@@ -10,6 +10,7 @@ import matplotlib.ticker as ticker
 import pandas as pd
 
 
+# todo: general cleanup of both reports in here
 logger = logging.getLogger(__name__)
 
 

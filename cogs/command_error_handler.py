@@ -79,6 +79,7 @@ class CommandErrorHandler(commands.Cog):
 
     """Below is an example of a Local Error Handler for our command do_repeat"""
 
+# todo: add local command error handlers?
     @commands.command(name='repeat', aliases=['mimic', 'copy'])
     async def do_repeat(self, ctx, *, inp: str):
         """A simple command which repeats your input!

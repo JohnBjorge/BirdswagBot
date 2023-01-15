@@ -17,7 +17,7 @@ async def create_core_tables(self):
                 note text not null,
                 created_on timestamptz default current_timestamp not null,
                 updated_on timestamptz default current_timestamp not null,
-                constraint valid_type_of_workout check (type_of_workout in ('Endurance', 'Strength', 'Balance', 'Flexibility')),
+                constraint valid_type_of_workout check (type_of_workout in ('Endurance', 'Strength', 'Balance', 'Mobility')),
                 constraint valid_difficulty check (difficulty in (1, 2, 3, 4)),
                 constraint pkey_workout_id primary key (workout_id)
             );
