@@ -75,11 +75,11 @@ class Workouts(commands.Cog):
         # todo: change * to specific columns
         sql_workout_history = \
             ("""
-                        select * 
-                        from workout
-                        where user_id = %(user_id)s
-                        order by date desc;
-                    """)
+                select * 
+                from workout
+                where user_id = %(user_id)s
+                order by date desc;
+            """)
 
         sql_input = {"user_id": user_id}
 

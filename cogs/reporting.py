@@ -64,9 +64,9 @@ class Reporting(commands.Cog):
         logger.debug(f'Fetching workout report for user_id: {user_id} and year_actual: {year_actual}')
 
         result = await self.bot.db.fetch(query, *positional_args)
-        result = [list(row) for row in result]
-        xaxis = [item[0] for item in result]
-        yaxis = [item[1] for item in result]
+        result = [dict(row) for row in result]
+
+        df = pd.DataFrame.from_dict(result)
 
         sns.set_theme(style="white", context="talk")
 
@@ -74,7 +74,8 @@ class Reporting(commands.Cog):
         f, ax = plt.subplots(figsize=(15, 5))
 
         # Generate some sequential data
-        sns.barplot(x=xaxis, y=yaxis, palette=sns.color_palette('crest'))
+        sns.barplot(data=df, x="xaxis", y="yaxis", palette=sns.color_palette("crest"))
+
         ax.axhline(0, color="k", clip_on=False)
         ax.set_xlabel("Week Number")
         ax.set_ylabel("Number of Workouts")
@@ -87,10 +88,8 @@ class Reporting(commands.Cog):
         sns.despine(bottom=True)
         plt.setp(f.axes)
         plt.tight_layout(pad=1.6)
-        # plt.xticks(rotation=90)
         plt.title("Number of Workouts Per Week in " + str(year_actual))
 
-        # plt.savefig('sandbox/images/graph.png', transparent=True)
         plt.savefig('sandbox/images/graph.png')
         plt.close(f)
 
@@ -111,7 +110,6 @@ class Reporting(commands.Cog):
         embed.set_image(url=f'attachment://graph.png')
 
         await ctx.send(file=image, embed=embed)
-
 
     @commands.command()
     async def report_workout_mix(self, ctx, year_actual=None):
