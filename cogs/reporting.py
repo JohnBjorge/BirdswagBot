@@ -1,14 +1,12 @@
 from discord.ext import commands
 import discord
 import logging
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from datetime import datetime
 import io
 from helpers import db_manager
 import matplotlib.ticker as ticker
-
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +24,7 @@ class Reporting(commands.Cog):
     @commands.command()
     async def report_total_workouts(self, ctx, year_actual=None):
         user_id = ctx.author.id
+        username = ctx.author
 
         if year_actual is None:
             year_actual = datetime.now().year
@@ -74,7 +73,7 @@ class Reporting(commands.Cog):
         f, ax = plt.subplots(figsize=(15, 5))
 
         # Generate some sequential data
-        sns.barplot(x=xaxis, y=yaxis, palette=sns.color_palette('rocket'))
+        sns.barplot(x=xaxis, y=yaxis, palette=sns.color_palette('crest'))
         ax.axhline(0, color="k", clip_on=False)
         ax.set_xlabel("Week Number")
         ax.set_ylabel("Number of Workouts")
@@ -104,7 +103,7 @@ class Reporting(commands.Cog):
                               description="Weekly Total Workouts",
                               color=0x1036cb,
                               timestamp=datetime.today())
-        embed.set_author(name="Birdswag Bot", url="",
+        embed.set_author(name=username, url="",
                          icon_url='https://cdn.discordapp.com/embed/avatars/0.png')
         embed.set_thumbnail(url='https://cdn.discordapp.com/embed/avatars/0.png')
 
