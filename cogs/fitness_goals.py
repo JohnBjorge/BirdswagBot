@@ -1,6 +1,7 @@
 from discord.ext import commands
 from helpers import db_manager
 from helpers import clean_data
+from helpers import embeds
 from datetime import date
 import logging
 from cogs import basic
@@ -48,7 +49,7 @@ class FitnessGoals(commands.Cog):
 
             fitness_goal_id = await db_manager.newest_fitness_goal(self, user_id)
 
-            content, embed = basic.embed_join(ctx, fitness_goal_id, user_id, start_date, end_date, note)
+            content, embed = embeds.embed_join(ctx, fitness_goal_id, user_id, start_date, end_date, note)
 
             await ctx.send(content=content, embed=embed)
         else:
@@ -92,7 +93,7 @@ class FitnessGoals(commands.Cog):
 
         result = await self.bot.db.fetchrow(query, *positional_args)
 
-        content, embed = basic.embed_goal(ctx, result["fitness_goal_id"], result["start_date"], result["end_date"], result["note"])
+        content, embed = embeds.embed_goal(ctx, result["fitness_goal_id"], result["start_date"], result["end_date"], result["note"])
 
         await ctx.send(content=content, embed=embed)
 

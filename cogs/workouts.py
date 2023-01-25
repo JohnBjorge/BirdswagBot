@@ -3,6 +3,7 @@ import discord
 from helpers import core_tables
 from helpers import db_manager
 from helpers import clean_data
+from helpers import embeds
 import logging
 from cogs import basic
 import csv
@@ -61,7 +62,7 @@ class Workouts(commands.Cog):
 
         result = await self.bot.db.fetchrow(query, *positional_args)
 
-        content, embed = basic.embed_workout(ctx, result["workout_id"], result["date"], result["type_of_workout"], result["difficulty"], result["note"])
+        content, embed = embeds.embed_workout(ctx, result["workout_id"], result["date"], result["type_of_workout"], result["difficulty"], result["note"])
 
         await ctx.send(content=content, embed=embed)
 
@@ -159,7 +160,7 @@ class Workouts(commands.Cog):
 
         workout_id = await db_manager.newest_workout(self, user_id)
 
-        content, embed = basic.embed_workout_new(ctx, workout_id, date, type_of_workout, difficulty, note)
+        content, embed = embeds.embed_workout_new(ctx, workout_id, date, type_of_workout, difficulty, note)
 
         await ctx.send(content=content, embed=embed)
 
