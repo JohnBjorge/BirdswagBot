@@ -22,12 +22,7 @@ def parse_command():
     return args
 
 
-# todo: cleanup and organize
-async def main():
-    args = parse_command()
-    local_flag = args.local
-    debug_flag = args.debug
-
+def setup_logging(debug_flag):
     logger = logging.getLogger()  # root logger
 
     handler = logging.FileHandler(filename='./logs/discord.log', encoding='utf-8', mode='w')
@@ -39,9 +34,20 @@ async def main():
         discord.utils.setup_logging(handler=handler, level=logging.INFO, root=True)
         discord.utils.setup_logging(level=logging.INFO, root=True)
 
+    return logger
+
+
+async def main():
+    args = parse_command()
+    local_flag = args.local
+    debug_flag = args.debug
+
+    logger = setup_logging(debug_flag)
+
     bot = BirdswagBot()
 
     load_dotenv()
+
     discord_token = os.getenv('DISCORD_TOKEN')
     database = os.getenv('DATABASE')
     db_user = os.getenv('DB_USER_GC')
@@ -53,14 +59,9 @@ async def main():
 
     async with bot:
         await load_extensions(bot)
-
-#        https: // stackoverflow.com / questions / 71625788 / accesing - loop - attribute - in -non -async-contexts
         await bot.create_db_pool(database, db_user, db_password)
-
         logger.info("Connection to database established, starting up bot!")
-
         await bot.start(discord_token)
 
 if __name__ == "__main__":
     asyncio.run(main())
-
