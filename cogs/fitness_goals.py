@@ -6,6 +6,7 @@ from datetime import date
 import logging
 from cogs import basic
 import discord
+import os
 
 
 logger = logging.getLogger(__name__)
@@ -97,34 +98,9 @@ class FitnessGoals(commands.Cog):
 
         await ctx.send(content=content, embed=embed)
 
-    # todo: change to allow csv or txt parameter, upload entire data table file
-    #  storage on GC instance? what happens when you save file, upload, delete file? I'm assuming discord handles that
-    #  should there be an option for a time range?
+    # todo: allow csv or txt parameter? allow time period parameter?
     @commands.command()
-    async def goal_history(self, ctx):
-        user_id = ctx.author.id
-
-        # todo: change * to specific columns
-        sql_goal_history = \
-            ("""
-                select * 
-                from fitness_goal
-                where user_id = %(user_id)s
-                order by end_date desc;
-            """)
-
-        sql_input = {"user_id": user_id}
-
-        query, positional_args = db_manager.pyformat_to_psql(sql_goal_history, sql_input)
-
-        logger.debug(f'Fetching fitness_goal history for user_id: {user_id}')
-
-        result = await self.bot.db.fetch(query, *positional_args)
-
-        await ctx.send(result)
-
-    @commands.command()
-    async def goal_dump(self, ctx, file_format='txt'):
+    async def goal_history(self, ctx, file_format='txt'):
         user_id = ctx.author.id
 
         # todo: change * to specific columns
@@ -147,13 +123,19 @@ class FitnessGoals(commands.Cog):
 
         result = await self.bot.db.fetch(query, *positional_args)
 
-        tabulated_data = basic.tabulate_sample(self, result)
+        tabulated_data = clean_data.tabulate_history(result)
+
+        message = f'Output of your goal history <@{user_id}>'
+
+        filename = 'temp/files/goal_history_' + str(user_id) + '.txt'
 
         if file_format == 'txt':
-            with open('sandbox/sample_dump.txt', 'w') as f:
+            with open(filename, 'w') as f:
                 f.write(tabulated_data)
 
-            await ctx.send(file=discord.File(r'./sandbox/sample_dump.txt'))
+            await ctx.send(message, file=discord.File(filename, filename='goal_history.txt'))
+
+            os.remove(filename)
 
         elif file_format == 'csv':
             # todo: csv dump, should be possible by making tabulate output to tsv then change to csv
@@ -212,33 +194,33 @@ class FitnessGoals(commands.Cog):
 
             await db_manager.fitness_goal_update_end_dates(self)
 
-    # todo: maybe break this out into goal_update_start_date, goal_update_note, etc
-    # todo: scrap update command? too much complexity?
-    @commands.command()
-    async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
-        user_id = ctx.author.id
-
-        fitness_goal_id = int(fitness_goal_id)
-
-        fitness_goal_id_matches_user_id = await db_manager.fitness_goal_id_matches_user_id(self, fitness_goal_id, user_id)
-
-        start_date = clean_data.clean_date(start_date)
-
-        if fitness_goal_id_matches_user_id:
-            sql_update_fitness_goal = \
-                ("""
-                    update fitness_goal
-                    set start_date = %(start_date)s,
-                        note = %(note)s
-                    where fitness_goal_id = %(fitness_goal_id)s
-                """)
-
-            sql_input = {"start_date": start_date, "note": note, "fitness_goal_id": fitness_goal_id}
-
-            query, positional_args = db_manager.pyformat_to_psql(sql_update_fitness_goal, sql_input)
-
-            await self.bot.db.execute(query, *positional_args)
-            await db_manager.fitness_goal_update_end_dates(self)
+    # # todo: maybe break this out into goal_update_start_date, goal_update_note, etc
+    # # todo: scrap update command? too much complexity?
+    # @commands.command()
+    # async def goal_update(self, ctx, fitness_goal_id, start_date, *, note):
+    #     user_id = ctx.author.id
+    #
+    #     fitness_goal_id = int(fitness_goal_id)
+    #
+    #     fitness_goal_id_matches_user_id = await db_manager.fitness_goal_id_matches_user_id(self, fitness_goal_id, user_id)
+    #
+    #     start_date = clean_data.clean_date(start_date)
+    #
+    #     if fitness_goal_id_matches_user_id:
+    #         sql_update_fitness_goal = \
+    #             ("""
+    #                 update fitness_goal
+    #                 set start_date = %(start_date)s,
+    #                     note = %(note)s
+    #                 where fitness_goal_id = %(fitness_goal_id)s
+    #             """)
+    #
+    #         sql_input = {"start_date": start_date, "note": note, "fitness_goal_id": fitness_goal_id}
+    #
+    #         query, positional_args = db_manager.pyformat_to_psql(sql_update_fitness_goal, sql_input)
+    #
+    #         await self.bot.db.execute(query, *positional_args)
+    #         await db_manager.fitness_goal_update_end_dates(self)
 
 
 async def setup(bot):

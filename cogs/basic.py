@@ -36,13 +36,5 @@ class Basic(commands.Cog):
         pass
 
 
-# todo: remove this function?
-def tabulate_sample(ctx, result):
-    data = [dict(row) for row in result]
-
-    output = tabulate(data, tablefmt="rounded_grid", headers="keys")
-    return output
-
-
 async def setup(bot):
     await bot.add_cog(Basic(bot))
