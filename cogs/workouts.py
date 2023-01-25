@@ -7,6 +7,7 @@ from helpers import embeds
 import logging
 from cogs import basic
 import csv
+import os
 
 
 logger = logging.getLogger(__name__)
@@ -66,34 +67,9 @@ class Workouts(commands.Cog):
 
         await ctx.send(content=content, embed=embed)
 
-    # todo: change to allow csv or txt parameter, upload entire data table file
-    #  storage on GC instance? what happens when you save file, upload, delete file? I'm assuming discord handles that
-    #  should there be an option for a time range?
+    # todo: allow csv or txt parameter? allow time period parameter?
     @commands.command()
-    async def workout_history(self, ctx):
-        user_id = ctx.author.id
-
-        # todo: change * to specific columns
-        sql_workout_history = \
-            ("""
-                select * 
-                from workout
-                where user_id = %(user_id)s
-                order by date desc;
-            """)
-
-        sql_input = {"user_id": user_id}
-
-        query, positional_args = db_manager.pyformat_to_psql(sql_workout_history, sql_input)
-
-        logger.debug(f'Fetching workout history for user_id: {user_id}')
-
-        result = await self.bot.db.fetch(query, *positional_args)
-
-        await ctx.send(result)
-
-    @commands.command()
-    async def workout_dump(self, ctx, file_format='txt'):
+    async def workout_history(self, ctx, file_format='txt'):
         user_id = ctx.author.id
 
         sql_workout_history = \
@@ -116,13 +92,19 @@ class Workouts(commands.Cog):
 
         result = await self.bot.db.fetch(query, *positional_args)
 
-        tabulated_data = basic.tabulate_sample(self, result)
+        tabulated_data = clean_data.tabulate_history(result)
+
+        message = f'Output of your workout history <@{user_id}>'
+
+        filename = 'temp/files/workout_history_' + str(user_id) + '.txt'
 
         if file_format == 'txt':
-            with open('sandbox/sample_dump.txt', 'w') as f:
+            with open(filename, 'w') as f:
                 f.write(tabulated_data)
 
-            await ctx.send(file=discord.File(r'./sandbox/sample_dump.txt'))
+            await ctx.send(message, file=discord.File(filename, filename='workout_history.txt'))
+
+            os.remove(filename)
 
         elif file_format == 'csv':
             # todo: csv dump, should be possible by making tabulate output to tsv then change to csv
@@ -186,14 +168,54 @@ class Workouts(commands.Cog):
 
             await self.bot.db.execute(query, *positional_args)
 
-    # todo: implement update command, need to consider how emoji voting will play into this, assuming it does and
-    #  which fields you are allowed to update
-    # todo: conssider scrapping this, too complex?
-    @commands.command()
-    async def workout_update(self, ctx, start_date, *, note):
-        pass
+    # # todo: implement update command, need to consider how emoji voting will play into this, assuming it does and
+    # #  which fields you are allowed to update
+    # # todo: conssider scrapping this, too complex?
+    # @commands.command()
+    # async def workout_update(self, ctx, start_date, *, note):
+    #     pass
 
-# todo: add search command
+    # todo: allow csv or txt parameter? allow time period parameter?
+    # todo: can't figure out hwo to get like statement to work in query on note search term
+    @commands.command()
+    async def workout_search(self, ctx, note_search_term):
+        user_id = ctx.author.id
+
+        note_search_term = str(note_search_term).lower()
+
+        sql_workout_search = \
+            ("""
+                select workout_id,
+                date,
+                type_of_workout,
+                difficulty,
+                note
+                from workout
+                where user_id = %(user_id)s
+                and note = %(note_search_term)s
+                order by date desc;
+            """)
+
+        sql_input = {"user_id": user_id, "note_search_term": note_search_term}
+
+        query, positional_args = db_manager.pyformat_to_psql(sql_workout_search, sql_input)
+
+        logger.debug(f'Fetching workout history for user_id: {user_id}')
+
+        result = await self.bot.db.fetch(query, *positional_args)
+
+        tabulated_data = clean_data.tabulate_history(result)
+
+        message = f'Output of your workout search <@{user_id}>\nSearch pattern: {note_search_term}'
+
+        filename = 'temp/files/workout_search_' + str(user_id) + '.txt'
+
+        with open(filename, 'w') as f:
+            f.write(tabulated_data)
+
+        await ctx.send(message, file=discord.File(filename, filename='workout_search.txt'))
+
+        os.remove(filename)
 
 
 async def setup(bot):
