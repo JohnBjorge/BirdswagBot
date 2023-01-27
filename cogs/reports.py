@@ -14,7 +14,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
-class Reporting(commands.Cog):
+class Reports(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -25,6 +25,13 @@ class Reporting(commands.Cog):
 
     @commands.command()
     async def report_total_workouts(self, ctx, year_actual=None):
+        """
+            Report total number of workouts per week
+
+            Include argument for the year to report on. If no year provided then return current year.
+
+            ex: `$report_total_workouts`
+        """
         user_id = ctx.author.id
         username = ctx.author
 
@@ -114,6 +121,13 @@ class Reporting(commands.Cog):
 
     @commands.command()
     async def report_workout_mix(self, ctx, year_actual=None):
+        """
+            Report total number of workouts per quarter by workout type
+
+            Include argument for the year to report on. If no year provided then return current year.
+
+            ex: `$report_workout_mix`
+        """
         user_id = ctx.author.id
         username = ctx.author
 
@@ -205,4 +219,4 @@ class Reporting(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Reporting(bot))
+    await bot.add_cog(Reports(bot))

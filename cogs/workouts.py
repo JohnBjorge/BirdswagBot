@@ -25,6 +25,14 @@ class Workouts(commands.Cog):
 
     @commands.command()
     async def workout(self, ctx, workout_id=None):
+        """
+            Return a specific workout database entry
+
+            Include an argument for a specific workout id. If no workout id provided then it will return your most
+            recent workout.
+
+            ex: `$workout 8`
+        """
         user_id = ctx.author.id
 
         if workout_id is None:
@@ -70,6 +78,14 @@ class Workouts(commands.Cog):
     # todo: allow csv or txt parameter? allow time period parameter?
     @commands.command()
     async def workout_history(self, ctx, file_format='txt'):
+        """
+            Output a file of your workout history
+
+            Include argument for file format. Default file format is txt (csv to be supported at later time).
+
+            ex: `$workout_history txt`
+        """
+
         user_id = ctx.author.id
 
         sql_workout_history = \
@@ -116,6 +132,20 @@ class Workouts(commands.Cog):
     # todo: restrict type_of_workout to valid items and notify user if wrong, same for difficulty
     @commands.command()
     async def workout_new(self, ctx, date, type_of_workout, difficulty, *, note):
+        """
+            Log a workout into database
+
+            Include arguments for date, type of workout, difficulty, and a note. When rating difficulty, rate with respect
+            to your own ability and how difficult it was for you. Think of it like a measure of how hard you pushed yourself.
+
+            Date - [today, yesterday, MM-DD-YYYY or MM/DD/YYYY]
+            Type of Workout - ['Endurance', 'Strength', 'Balance', 'Mobility']
+            Difficulty - [1, 2, 3, 4] where 1 is easiest and 4 is hardest
+            Note - notes related to your workout
+
+            ex: `$workout_new today strength 3 Squats: 3 sets of 5 at 225 lbs`
+        """
+
         user_id = ctx.author.id
 
         date = clean_data.clean_date(date)
@@ -148,6 +178,14 @@ class Workouts(commands.Cog):
 
     @commands.command()
     async def workout_delete(self, ctx, workout_id):
+        """
+            Delete a workout from the database
+
+            Include argument for workout id you would like to delete. To find a workout id use `$workout_history` or
+            `$workout_search`. To confirm you have the correct workout, use `$workout`
+
+            ex: `$workout_delete 17`
+        """
         user_id = ctx.author.id
         workout_id = int(workout_id)
 
@@ -181,6 +219,13 @@ class Workouts(commands.Cog):
     #       are at the gym on your phone and need info on the fly
     @commands.command()
     async def workout_search(self, ctx, *, note_search_term):
+        """
+            Search the database for a past workout
+
+            Include an argument for searching note field (case insensitive).
+
+            ex: `$workout_search squats`
+        """
         user_id = ctx.author.id
 
         # note: pyformat_to_psql function didn't like something about containing percent signs or escaped quotes

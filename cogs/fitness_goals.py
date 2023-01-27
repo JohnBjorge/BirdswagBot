@@ -23,6 +23,11 @@ class FitnessGoals(commands.Cog):
 
     @commands.command()
     async def join(self, ctx):
+        """
+            Join the fitness bot by creating your first goal
+
+            ex: `$join`
+        """
         # check if user already exists, if not proceed, otherwise exit out
         user_id = ctx.author.id
         user_exist = await db_manager.fitness_goal_exist_user_id(self, user_id)
@@ -59,6 +64,14 @@ class FitnessGoals(commands.Cog):
 
     @commands.command()
     async def goal(self, ctx, fitness_goal_id=None):
+        """
+            Return a specific fitness goal database entry
+
+            Include an argument for a specific fitness goal id. If no fitness goal id provided then it will return
+            your most recent fitness goal.
+
+            ex: `$goal 2`
+        """
         user_id = ctx.author.id
 
         if fitness_goal_id is None:
@@ -101,6 +114,13 @@ class FitnessGoals(commands.Cog):
     # todo: allow csv or txt parameter? allow time period parameter?
     @commands.command()
     async def goal_history(self, ctx, file_format='txt'):
+        """
+            Output a file of your fitness goal history
+
+            Include argument for file format. Default file format is txt (csv to be supported at later time).
+
+            ex: `$goal_history txt`
+        """
         user_id = ctx.author.id
 
         # todo: change * to specific columns
@@ -146,6 +166,16 @@ class FitnessGoals(commands.Cog):
 
     @commands.command()
     async def goal_new(self, ctx, start_date, *, note):
+        """
+            Log a fitness goal into database
+
+            Include arguments for start date and a note.
+
+            Start Date - [today, yesterday, MM-DD-YYYY or MM/DD/YYYY]
+            Note - notes related to your fitness goal
+
+            ex: `$goal_new 1/1/2023 Deadlift: 2x BW, Squat 1.5x BW, Bench 1x BW`
+        """
         user_id = ctx.author.id
         end_date = date(2999, 12, 31)
 
@@ -172,6 +202,14 @@ class FitnessGoals(commands.Cog):
 
     @commands.command()
     async def goal_delete(self, ctx, fitness_goal_id):
+        """
+            Delete a fitness goal from the database
+
+            Include argument for fitness goal id you would like to delete. To find a fitness goal id use
+            `$goal_history`. To confirm you have the correct goal, use `$goal`
+
+            ex: `$goal_delete 2`
+        """
         user_id = ctx.author.id
         fitness_goal_id = int(fitness_goal_id)
 
