@@ -6,7 +6,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# todo: move embeds to helpers, cogs are for commands
 # todo: combine embed_workout and embed_workout_new, only difference right now is the title
 def embed_workout(ctx, workout_id, date, type_of_workout, difficulty, note):
     content = \
