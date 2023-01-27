@@ -176,12 +176,16 @@ class Workouts(commands.Cog):
     #     pass
 
     # todo: allow csv or txt parameter? allow time period parameter?
-    # todo: can't figure out hwo to get like statement to work in query on note search term
+    # todo: can't preview txt file on mobile and viewing isn't as block so pretty annoying, maybe a workaround is
+    #       to have a recent option that gives most recent workout that way we can just dump it out for if you
+    #       are at the gym on your phone and need info on the fly
     @commands.command()
-    async def workout_search(self, ctx, note_search_term):
+    async def workout_search(self, ctx, *, note_search_term):
         user_id = ctx.author.id
 
-        note_search_term = str(note_search_term).lower()
+        # note: pyformat_to_psql function didn't like something about containing percent signs or escaped quotes
+        #  so hacky-ish workaround to build the search term with percent pattern signs
+        note_search_term = "%" + str(note_search_term).lower() + "%"
 
         sql_workout_search = \
             ("""
@@ -192,7 +196,7 @@ class Workouts(commands.Cog):
                 note
                 from workout
                 where user_id = %(user_id)s
-                and note = %(note_search_term)s
+                and lower(note) like %(note_search_term)s
                 order by date desc;
             """)
 
@@ -204,18 +208,23 @@ class Workouts(commands.Cog):
 
         result = await self.bot.db.fetch(query, *positional_args)
 
-        tabulated_data = clean_data.tabulate_history(result)
+        if len(result) == 0:
+            message = f'No matches found <@{user_id}>\nSearch pattern: {note_search_term}'
+            await ctx.send(message)
 
-        message = f'Output of your workout search <@{user_id}>\nSearch pattern: {note_search_term}'
+        else:
+            tabulated_data = clean_data.tabulate_history(result)
 
-        filename = 'temp/files/workout_search_' + str(user_id) + '.txt'
+            message = f'Output of your workout search <@{user_id}>\nSearch pattern: {note_search_term}'
 
-        with open(filename, 'w') as f:
-            f.write(tabulated_data)
+            filename = 'temp/files/workout_search_' + str(user_id) + '.txt'
 
-        await ctx.send(message, file=discord.File(filename, filename='workout_search.txt'))
+            with open(filename, 'w') as f:
+                f.write(tabulated_data)
 
-        os.remove(filename)
+            await ctx.send(message, file=discord.File(filename, filename='workout_search.txt'))
+
+            os.remove(filename)
 
 
 async def setup(bot):
