@@ -2,7 +2,7 @@ import os
 import logging
 import discord
 from dotenv import load_dotenv
-from bot import BirdswagBot
+from bot import FitnessBot
 import asyncio
 import argparse
 
@@ -47,7 +47,7 @@ async def main():
 
     logger = setup_logging(debug_flag)
 
-    bot = BirdswagBot()
+    bot = FitnessBot()
 
     load_dotenv()
 

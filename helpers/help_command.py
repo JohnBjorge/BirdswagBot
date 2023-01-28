@@ -5,31 +5,6 @@ import discord
 
 logger = logging.getLogger(__name__)
 
-"""
-CommandErrorHandler:
-  repeat                A simple command which repeats your input!
-FitnessGoals:
-  goal                  
-  goal_delete           
-  goal_history          
-  goal_new              
-  join                  
-Reporting:
-  report_total_workouts 
-  report_workout_mix    
-Workouts:
-  workout               
-  workout_delete        
-  workout_history       
-  workout_new           
-  workout_search        
-​No Category:
-  help                  Shows this message
-
-Type $help command for more info on a command.
-You can also type $help category for more info on a category.
-"""
-
 
 # todo: improve and build out help commands!
 class CustomHelpCommand(commands.MinimalHelpCommand):
@@ -97,7 +72,7 @@ class CustomHelpCommand(commands.MinimalHelpCommand):
             self.paginator.add_line('__**%s**__' % heading)  # Add Cog/category name ie Games/Administration/Misc
 
             for c in commands:
-                c_name = f'__**`{self.context.clean_prefix}{c.qualified_name}`**__'  # formatted prefix + command name
+                c_name = f'**`{self.context.clean_prefix}{c.qualified_name}`**'  # formatted prefix + command name
                 c_desc = c.short_doc.replace('[p]', self.context.clean_prefix) if c.short_doc else ''
                 self.paginator.add_line(f'{c_name} \u200b \N{EN DASH} \u200b {c_desc}')
 
@@ -162,52 +137,3 @@ class CustomHelpCommand(commands.MinimalHelpCommand):
         return "Use `{0}{1} [command]` for more info on a command.\n" \
                "Use `{0}guide` for a general bot overview.".format(self.context.clean_prefix, command_name)
         # return "Use `{0}{1} [command]` for more info on a command.\n".format(self.context.clean_prefix, command_name)
-
-    # def __init__(self):
-    #     super().__init__()
-    #
-    # async def send_bot_help(self, mapping):
-    #     message_header = "Use $help [command] for more info on a command.\nUse $guide for a general bot overview.\n\n"
-    #
-    #     message_content = ""
-    #
-    #     # `mapping` is a dict of the bot's cogs, which map to their commands
-    #     for cog, commands in mapping.items():  # get the cog and its commands separately
-    #         if cog is not None and cog.qualified_name in ["Workouts", "FitnessGoals", "Reporting"]:
-    #             message_content = message_content + "**" + cog.qualified_name + "**" + "\n"
-    #             for command in commands:
-    #                 message_content = message_content + "```" + command.qualified_name + "```" + " - " + command.short_doc + "\n"
-    #
-    #     channel = self.get_destination()  # this method is inherited from `HelpCommand`, and gets the channel in context
-    #
-    #     message = message_header + message_content
-    #
-    #     await channel.send(message)
-    #
-    # async def send_cog_help(self, cog):
-    #     await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in cog.get_commands()]}')
-    #     embed = discord.Embed(title="Bot help")
-    #     # `mapping` is a dict of the bot's cogs, which map to their commands
-    #     for cmds in cog.items():  # get the cog and its commands separately
-    #         if cog is not None and cog.qualified_name in ["Workouts", "FitnessGoals", "Reporting"]:
-    #             embed.add_field(
-    #                 name=cog.qualified_name,  # get the cog name
-    #                 value=f"{len(cmds)} commands"  # get a count of the commands in the cog.
-    #             )
-    #
-    #     channel = self.get_destination()  # this method is inherited from `HelpCommand`, and gets the channel in context
-    #     await channel.send(embed=embed)
-    #
-    # async def send_group_help(self, group):
-    #     await self.get_destination().send(f'{group.name}: {[command.name for index, command in enumerate(group.commands)]}')
-    #
-    # async def send_command_help(self, command):
-    #     await self.get_destination().send(command.name)
-
-
-
-
-
-
-
-

@@ -8,7 +8,7 @@ from helpers import help_command
 logger = logging.getLogger(__name__)
 
 
-class BirdswagBot(commands.Bot):
+class FitnessBot(commands.Bot):
 
     def __init__(self, **options):
         self.db = None
@@ -20,7 +20,7 @@ class BirdswagBot(commands.Bot):
         super().__init__(
             command_prefix="$",
             help_command=help_command.CustomHelpCommand(),  # just remove if I want default help command
-            description="This is the Birdswag Bot",
+            description="This is the Fitness Bot",
             intents=intents,
             **options
         )

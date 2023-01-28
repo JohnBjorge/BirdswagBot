@@ -39,7 +39,6 @@ class Workouts(commands.Cog):
             sql_fetch_workout = \
                 ("""
                     select workout_id,
-                        user_id,
                         date,
                         type_of_workout,
                         difficulty,
@@ -55,7 +54,6 @@ class Workouts(commands.Cog):
             sql_fetch_workout = \
                 ("""
                     select workout_id,
-                        user_id,
                         date,
                         type_of_workout,
                         difficulty,
