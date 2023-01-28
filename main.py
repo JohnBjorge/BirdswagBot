@@ -58,6 +58,7 @@ async def main():
     db_password = os.getenv('DB_PASSWORD_GC')
 
     if local_flag:
+        discord_token = os.getenv('DISCORD_TOKEN_LOCAL')
         db_user = os.getenv('DB_USER_LOCAL')
         db_password = os.getenv('DB_PASSWORD_LOCAL')
 
