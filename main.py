@@ -6,7 +6,7 @@ from bot import FitnessBot
 import asyncio
 import argparse
 
-
+# test commit
 # possibly useful security doc for discord bots
 # https://gist.github.com/apple502j/d1330461e7e8ad6532cb62a670d06a5a
 
